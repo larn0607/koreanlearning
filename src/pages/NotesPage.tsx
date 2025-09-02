@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { NoteItem } from '../types';
-import { exportNotesToCSV, parseNotesCSV } from '../utils/csv';
+import { exportNotesToCSV, parseNotesCSV, clearFlashcardStorage, areItemsDifferent } from '../utils/csv';
 import { normalizeNewlines } from '../utils/text';
 
 const STORAGE_KEY = 'korean-study:notes';
@@ -38,7 +38,17 @@ export default function NotesPage() {
       setItems(prev => {
         const map = new Map<string, NoteItem>();
         [...prev, ...newItems].forEach(i => map.set(i.id, i));
-        return Array.from(map.values());
+        const mergedItems = Array.from(map.values());
+        
+        // Check if the merged data is different from current data
+        if (areItemsDifferent(prev, mergedItems)) {
+          // Clear flashcard storage for all categories when notes change
+          // since notes might affect study context
+          clearFlashcardStorage('vocab');
+          clearFlashcardStorage('grammar');
+        }
+        
+        return mergedItems;
       });
       e.target.value = '';
     });

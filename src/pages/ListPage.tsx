@@ -3,7 +3,7 @@ import { ItemModal } from '../components/ItemModal';
 import { EditItemModal } from '../components/EditItemModal';
 import { FlashcardModal } from '../components/FlashcardModal';
 import type { StudyItem } from '../types';
-import { exportToCSV, parseCSV } from '../utils/csv';
+import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent } from '../utils/csv';
 
 type ListPageProps = {
   category: 'vocab' | 'grammar';
@@ -59,7 +59,15 @@ export function ListPage({ category }: ListPageProps) {
         // merge by id if exists, else append
         const map = new Map<string, StudyItem>();
         [...prev, ...newItems].forEach(i => map.set(i.id, i));
-        return Array.from(map.values());
+        const mergedItems = Array.from(map.values());
+        
+        // Check if the merged data is different from current data
+        if (areItemsDifferent(prev, mergedItems)) {
+          // Clear flashcard storage when data changes
+          clearFlashcardStorage(category);
+        }
+        
+        return mergedItems;
       });
       e.target.value = '';
     });

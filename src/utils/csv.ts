@@ -76,4 +76,43 @@ export function exportNotesToCSV(items: NoteItem[], filename = 'notes.csv') {
   URL.revokeObjectURL(url);
 }
 
+// Utility function to clear flashcard storage for a category
+export function clearFlashcardStorage(category: string) {
+  const storageKey = `korean-study:flashcards:${category}`;
+  localStorage.removeItem(storageKey);
+}
+
+// Utility function to check if two arrays of items are different
+export function areItemsDifferent<T extends { id: string }>(current: T[], imported: T[]): boolean {
+  // If lengths are different, they're different
+  if (current.length !== imported.length) return true;
+  
+  // Create maps for easier comparison
+  const currentMap = new Map(current.map(item => [item.id, item]));
+  const importedMap = new Map(imported.map(item => [item.id, item]));
+  
+  // Check if all IDs exist in both
+  for (const id of currentMap.keys()) {
+    if (!importedMap.has(id)) return true;
+  }
+  for (const id of importedMap.keys()) {
+    if (!currentMap.has(id)) return true;
+  }
+  
+  // Check if any content is different (deep comparison)
+  for (const [id, currentItem] of currentMap) {
+    const importedItem = importedMap.get(id);
+    if (!importedItem) return true;
+    
+    // Compare all properties
+    for (const key in currentItem) {
+      if (currentItem[key] !== importedItem[key]) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
 
