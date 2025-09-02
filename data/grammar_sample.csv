@@ -1,0 +1,49 @@
+id,korean,vietnamese,english,description,example1_ko,example1_vi,example1_en,example2_ko,example2_vi,example2_en
+1,~입니다,~là...,~is...,Là đuôi câu trang trọng dùng để khẳng định danh tính hoặc trạng thái.,저는 학생입니다.,Tôi là học sinh.,I am a student.,여기는 도서관입니다.,Đây là thư viện.,This is a library.
+2,~입니까,~phải không?,~is it?,Dạng câu hỏi trang trọng, dùng để hỏi danh tính, nghề nghiệp, nơi chốn...,선생님입니까?,Bạn là giáo viên phải không?,Are you a teacher?,여기가 학교입니까?,Đây là trường học phải không?,Is this the school?
+3,은/는,tiểu từ chủ đề,topic particle,Được dùng để nhấn mạnh chủ đề của câu, thường đi sau danh từ.,저는 한국 사람입니다.,Tôi là người Hàn Quốc.,I am Korean.,이 책은 재미있습니다.,Cuốn sách này thú vị.,This book is interesting.
+4,이/가,tiểu từ chủ ngữ,subject particle,Dùng để chỉ chủ ngữ trong câu, thường dùng khi giới thiệu thông tin mới.,학교가 큽니다.,Trường học thì lớn.,The school is big.,친구가 옵니다.,Bạn đang đến.,My friend is coming.
+5,에 있습니다,có ở...,is at...,Diễn tả sự tồn tại của người/vật ở một nơi nào đó.,책이 책상 위에 있습니다.,Sách có trên bàn.,The book is on the desk.,학생이 교실에 있습니다.,Học sinh có trong lớp học.,The student is in the classroom.
+6,이/가 아닙니다,không phải là...,is not...,Dùng để phủ định danh tính hoặc trạng thái một cách trang trọng.,저는 의사가 아닙니다.,Tôi không phải là bác sĩ.,I am not a doctor.,여기는 집이 아닙니다.,Đây không phải là nhà.,This is not a house.
+7,~ㅂ/습니다,đuôi câu trang trọng,formal ending,Dùng trong văn viết hoặc khi nói trang trọng, biểu thị hành động hoặc trạng thái.,저는 밥을 먹습니다.,Tôi ăn cơm.,I eat rice.,그는 공부합니다.,Anh ấy học bài.,He studies.
+8,을/를,tiểu từ tân ngữ,object particle,Dùng để chỉ đối tượng bị tác động bởi hành động.,책을 읽습니다.,Tôi đọc sách.,I read a book.,음악을 듣습니다.,Tôi nghe nhạc.,I listen to music.
+9,에서,tại...,at...,Dùng để chỉ nơi diễn ra hành động.,학교에서 공부합니다.,Tôi học ở trường.,I study at school.,도서관에서 책을 읽습니다.,Tôi đọc sách ở thư viện.,I read books at the library.
+10,한자어 수사,số Hán Hàn,Sino-Korean numbers,Dùng trong các trường hợp trang trọng, số điện thoại, ngày tháng, tiền tệ...,일백 원,100 won.,One hundred won.,삼월 십일일,Ngày 11 tháng 3.,March 11th.
+11,와/과,và,and,Dùng để nối hai danh từ, 와 dùng sau nguyên âm, 과 dùng sau phụ âm.,사과와 바나나,Táo và chuối.,Apple and banana.,형과 동생,Anh và em.,Older brother and younger sibling.
+12,에,ở/tại/to,at/to,Dùng để chỉ thời gian hoặc nơi chốn, hoặc hướng đến.,학교에 갑니다.,Tôi đi đến trường.,I go to school.,아침에 일어납니다.,Tôi thức dậy vào buổi sáng.,I wake up in the morning.
+13,고유어 수사,số thuần Hàn,Native Korean numbers,Dùng để đếm tuổi, người, vật...,한 명,Một người.,One person.,세 살,Ba tuổi.,Three years old.
+14,수관형사,định từ số lượng,quantitative adjective,Dùng để bổ nghĩa cho danh từ bằng số lượng.,두 개,Một cái.,Two items.,다섯 명,Năm người.,Five people.
+15,~아/어요,đuôi câu thân mật,polite informal ending,Dùng trong giao tiếp thân mật, biểu thị hành động hoặc trạng thái.,밥을 먹어요.,Tôi ăn cơm.,I eat rice.,공부해요.,Tôi học bài.,I study.
+16,에 가요,đi đến...,go to...,Dùng để diễn tả hành động đi đến một nơi nào đó.,도서관에 가요.,Tôi đi đến thư viện.,I go to the library.,시장에 가요.,Tôi đi đến chợ.,I go to the market.
+17,안,không (phủ định),not,Dùng để phủ định hành động, đặt trước động từ.,공부 안 해요.,Tôi không học.,I don’t study.,운동 안 해요.,Tôi không tập thể dục.,I don’t exercise.
+18,~았/었~,đã...,past tense marker,Dùng để chia động từ ở thì quá khứ, biểu thị hành động đã xảy ra.,밥을 먹었어요.,Tôi đã ăn cơm.,I ate rice.,학교에 갔어요.,Tôi đã đến trường.,I went to school.
+19,하고,và,and,Dùng để nối hai danh từ hoặc động từ, thường dùng trong văn nói.,사과하고 바나나,Táo và chuối.,Apple and banana.,친구하고 영화 봤어요.,Tôi xem phim với bạn.,I watched a movie with my friend.
+20,~(으)ㅂ시다,hãy cùng...,let's...,Dùng để rủ rê hoặc đề nghị cùng làm gì đó một cách trang trọng.,같이 공부합시다.,Hãy cùng học nhé.,Let's study together.,식사합시다.,Hãy ăn cơm nhé.,Let's have a meal.
+21,은/는 (nghĩa đối chiếu),so sánh/đối chiếu,contrast particle,Dùng để nhấn mạnh sự khác biệt hoặc đối chiếu giữa hai đối tượng.,저는 학생이고 친구는 선생님입니다.,Tôi là học sinh còn bạn tôi là giáo viên.,I am a student, but my friend is a teacher.,이 책은 재미있고 저 책은 어렵습니다.,Cuốn sách này thú vị còn cuốn kia thì khó.,This book is interesting, but that one is difficult.
+22,giản lược ㅡ,rút gọn nguyên âm ㅡ,vowel contraction,Khi chia động từ có nguyên âm ㅡ, nguyên âm này có thể bị lược bỏ để thuận âm.,쓰다 → 써요,Viết → viết (thân mật).,To write → write (informal).,크다 → 커요,Lớn → lớn (thân mật).,Big → big (informal).
+23,~고싶다,muốn...,want to...,Dùng để diễn tả mong muốn thực hiện hành động nào đó.,한국에 가고 싶어요.,Tôi muốn đi Hàn Quốc.,I want to go to Korea.,밥을 먹고 싶어요.,Tôi muốn ăn cơm.,I want to eat rice.
+24,~겠~,sẽ...,will...,Dùng để diễn tả ý định, dự đoán hoặc lời hứa.,내일 공부하겠어요.,Ngày mai tôi sẽ học.,I will study tomorrow.,도와드리겠습니다.,Tôi sẽ giúp bạn.,I will help you.
+25,~지 않다,không...,not...,Cấu trúc phủ định đặt sau động từ/tính từ.,공부하지 않아요.,Tôi không học.,I don’t study.,먹지 않아요.,Tôi không ăn.,I don’t eat.
+26,(으)세요,hãy...,please (do...),Dùng để yêu cầu hoặc đề nghị một cách lịch sự, thường dùng với người lớn hơn hoặc trong tình huống trang trọng.,문을 여세요.,Hãy mở cửa.,Please open the door.,이쪽으로 오세요.,Hãy đến phía này.,Please come this way.
+27,(으)ㄹ래요,có muốn...,would you like to...,Dùng để hỏi hoặc đề xuất một cách thân mật.,같이 갈래요?,Bạn có muốn đi cùng không?,Do you want to go together?,밥 먹을래요?,Bạn có muốn ăn cơm không?,Do you want to eat?
+28,도,cũng,also/too,Dùng để biểu thị sự bổ sung, giống như “cũng” trong tiếng Việt.,저도 학생입니다.,Tôi cũng là học sinh.,I am also a student.,이것도 맛있어요.,Cái này cũng ngon.,This is also delicious.
+29,께서 - 께,kính ngữ của 이/가 và 에,honorific subject & object marker,Dùng để thể hiện sự kính trọng khi nói về người lớn tuổi hoặc cấp trên.,선생님께서 오셨어요.,Thầy giáo đã đến.,The teacher came.,할머니께 선물을 드렸어요.,Tôi đã tặng quà cho bà.,I gave a gift to grandma.
+30,(ㅇ)시,kính ngữ,honorific suffix,Dùng để biến động từ thành dạng kính ngữ, thể hiện sự tôn trọng.,선생님이 말씀하셨어요.,Thầy đã nói.,The teacher spoke.,아버지가 주무세요.,Bố đang ngủ.,Father is sleeping.
+31,giản lược ㄹ ㄴ,rút gọn phụ âm ㄹ và ㄴ,consonant contraction,Khi chia động từ có patchim ㄹ hoặc ㄴ, có thể bị lược bỏ để thuận âm.,알다 → 아세요,Biết → hãy biết.,To know → please know.,살다 → 사세요,Sống → hãy sống.,To live → please live.
+32,~고,và (liên kết hành động),and (connecting actions),Dùng để nối hai hành động hoặc trạng thái liên tiếp.,밥을 먹고 학교에 갔어요.,Tôi ăn cơm rồi đi học.,I ate and went to school.,책을 읽고 잤어요.,Tôi đọc sách rồi ngủ.,I read and slept.
+33,부터~까지,từ~đến,from~to,Dùng để chỉ khoảng thời gian hoặc không gian.,아침부터 저녁까지,Từ sáng đến tối.,From morning to evening.,서울부터 부산까지,Từ Seoul đến Busan.,From Seoul to Busan.
+34,(으)ㄹ 거예요,sẽ...,will...,Dùng để diễn tả dự định hoặc kế hoạch trong tương lai.,내일 공부할 거예요.,Ngày mai tôi sẽ học.,I will study tomorrow.,저는 한국에 갈 거예요.,Tôi sẽ đi Hàn Quốc.,I will go to Korea.
+35,ㅂ bất quy tắc,bất quy tắc ㅂ,irregular ㅂ verb,Dạng bất quy tắc khi chia động từ/tính từ có patchim ㅂ, thường chuyển thành 우 hoặc 오.,돕다 → 도와요,Giúp → tôi giúp.,Help → I help.,춥다 → 추워요,Lạnh → trời lạnh.,Cold → it’s cold.
+36,에게~한테,cho...,to...,Tiểu từ chỉ đối tượng nhận hành động, 에게 dùng trong văn viết, 한테 dùng trong văn nói.,친구에게 편지를 써요.,Tôi viết thư cho bạn.,I write a letter to my friend.,선생님한테 물어봐요.,Tôi hỏi thầy giáo.,I ask the teacher.
+37,께,kính ngữ của 에게,to (honorific),Dùng để thể hiện sự kính trọng khi nói về người lớn tuổi hoặc cấp trên.,할머니께 말씀드렸어요.,Tôi đã nói với bà.,I spoke to grandma.,아버지께 선물을 드렸어요.,Tôi tặng quà cho bố.,I gave a gift to father.
+38,~지만,nhưng...,but...,Dùng để nối hai mệnh đề có ý nghĩa trái ngược nhau.,좋지만 비싸요.,Tốt nhưng đắt.,It’s good but expensive.,먹고 싶지만 배가 불러요.,Muốn ăn nhưng đã no.,I want to eat but I’m full.
+39,~(으)려고 하다,định...,intend to...,Dùng để diễn tả ý định hoặc kế hoạch sắp làm.,한국어를 배우려고 해요.,Tôi định học tiếng Hàn.,I intend to learn Korean.,집에 가려고 해요.,Tôi định về nhà.,I intend to go home.
+40,~아/어서,vì...,so...,Dùng để nối hai hành động hoặc lý do dẫn đến kết quả.,배가 고파서 밥을 먹었어요.,Vì đói nên tôi ăn cơm.,I was hungry so I ate.,길이 막혀서 늦었어요.,Vì kẹt xe nên tôi đến muộn.,I was late because of traffic.
+41,~(으)ㄹ까요,có nên...,shall we?/do you think...,Dùng để đề xuất hoặc hỏi ý kiến người nghe.,같이 갈까요?,Chúng ta đi cùng nhé?,Shall we go together?,뭐 먹을까요?,Chúng ta ăn gì nhé?,What shall we eat?
+42,못,không thể...,cannot...,Dùng để phủ định khả năng thực hiện hành động.,못 가요.,Tôi không thể đi.,I can’t go.,못 먹어요.,Tôi không thể ăn.,I can’t eat.
+43,~(으)ㄹ 수 있다,có thể...,can...,Dùng để diễn tả khả năng thực hiện hành động.,한국어를 말할 수 있어요.,Tôi có thể nói tiếng Hàn.,I can speak Korean.,운전할 수 있어요.,Tôi có thể lái xe.,I can drive.
+44,~기 / ~는 것,danh từ hóa động từ,nominalization,Dùng để biến động từ thành danh từ để làm chủ ngữ hoặc tân ngữ.,운동하기 좋아해요.,Tôi thích tập thể dục.,I like exercising.,책 읽는 것을 좋아해요.,Tôi thích việc đọc sách.,I like reading books.
+45,ㄹ bất quy tắc,bất quy tắc ㄹ,irregular ㄹ verb,Khi chia động từ có patchim là ㄹ, ㄹ thường bị lược bỏ trước các đuôi bắt đầu bằng ㄴ, ㅂ, ㅅ, ㅅㅣ.,살다 → 사는 곳,Nơi sống.,Place to live.,멀다 → 먼 거리,Khoảng cách xa.,Far distance.
+46,에서~까지,từ~đến,from~to,Dùng để chỉ khoảng không gian hoặc thời gian bắt đầu và kết thúc.,서울에서 부산까지,Từ Seoul đến Busan.,From Seoul to Busan.,아침에서 저녁까지,Từ sáng đến tối.,From morning to evening.
+47,(으)로,bằng/đến...,by/with/to,Dùng để chỉ phương tiện, công cụ hoặc hướng đi.,버스로 가요.,Tôi đi bằng xe buýt.,I go by bus.,연필로 써요.,Tôi viết bằng bút chì.,I write with a pencil.
+48,(으)러 가요,đi để...,go in order to...,Dùng để diễn tả mục đích của hành động đi đâu đó.,밥을 먹으러 식당에 가요.,Tôi đi nhà hàng để ăn cơm.,I go to the restaurant to eat.,책을 읽으러 도서관에 가요.,Tôi đến thư viện để đọc sách.,I go to the library to read.
