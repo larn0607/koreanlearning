@@ -79,6 +79,15 @@ export function ListPage({ category }: ListPageProps) {
     setItems(prev => prev.filter(i => i.id !== id));
   }
 
+  function handleClearAll() {
+    const confirmed = window.confirm('Bạn có chắc muốn xóa tất cả dữ liệu hiện tại?');
+    if (!confirmed) return;
+    clearFlashcardStorage(category);
+    setSelectedId(null);
+    setEditing(null);
+    setItems([]);
+  }
+
   return (
     <div className="list-page">
       <div className="toolbar">
@@ -94,6 +103,7 @@ export function ListPage({ category }: ListPageProps) {
           <input type="file" accept=".csv" onChange={handleImportChange} hidden />
         </label>
         <label className="btn" onClick={() => exportToCSV(items, `${category}.csv`)}>Export CSV</label>
+        <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
         <label className="btn" onClick={() => setShowFlash(true)}>Flashcard</label>
       </div>
 
@@ -106,7 +116,7 @@ export function ListPage({ category }: ListPageProps) {
         </div>
         <div className="tbody">
           {filtered.map(item => (
-            <div className="row" key={item.id}>
+            <div className="row" key={item.id} onClick={() => setSelectedId(item.id)} style={{ cursor: 'pointer' }}>
               <div className="cell">
                 <div className="cell-input">{item.korean}</div>
               </div>

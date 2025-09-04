@@ -254,7 +254,7 @@ export function FlashcardModal({ items, onClose, storageKey = 'korean-study:flas
                   </div>
                 )}
                 {current.description && (
-                  <pre style={{ color: '#fff', whiteSpace:'pre-wrap', margin:0, fontSize: 'clamp(12px, 2.5vw, 14px)', lineHeight: '1.4' }}>{current.description}</pre>
+                  <div><span style={{ color: '#fff', whiteSpace:'pre-wrap', margin:0, fontSize: 'clamp(12px, 2.5vw, 14px)', lineHeight: '1.4' }}>{normalizeNewlines(current.description)}</span></div>
                 )}
                 {(current.example1_ko || current.example1_vi || current.example1_en) && (
                   <div style={{ marginTop: 8 }}>
