@@ -74,4 +74,10 @@ body {
   .modal { padding: 16px; border-radius: 10px; }
 }
 
+/* Override card hover effects for modals */
+.flashcard-container:hover,
+.check-modal-card:hover {
+  transform: none !important;
+  border-color: #ddd !important;
+}
 

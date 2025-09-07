@@ -2,7 +2,6 @@ import Papa, { type ParseResult } from 'papaparse';
 import type { StudyItem, NoteItem } from '../types';
 
 export function parseCSV(file: File): Promise<StudyItem[]> {
-    debugger;
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,

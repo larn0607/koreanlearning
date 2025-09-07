@@ -163,7 +163,7 @@ export function FlashcardModal({ items, onClose, storageKey = 'korean-study:flas
             </div>
           ) : (
             <div
-              className="card"
+              className="card flashcard-container"
               style={{
                 padding: 0,
                 border: '1px solid #ddd',
@@ -173,7 +173,9 @@ export function FlashcardModal({ items, onClose, storageKey = 'korean-study:flas
                 background: 'transparent',
                 position: 'relative',
                 flex: '1 1 auto',
-                minHeight: 0
+                minHeight: 0,
+                transform: 'none !important',
+                transition: 'none !important'
               }}
             >
             <div

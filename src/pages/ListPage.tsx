@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ItemModal } from '../components/ItemModal';
 import { EditItemModal } from '../components/EditItemModal';
 import { FlashcardModal } from '../components/FlashcardModal';
+import { CheckModal } from '../components/CheckModal';
 import type { StudyItem } from '../types';
 import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent } from '../utils/csv';
 
@@ -30,6 +31,7 @@ export function ListPage({ category }: ListPageProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [showFlash, setShowFlash] = useState(false);
+  const [showCheck, setShowCheck] = useState(false);
   const [editing, setEditing] = useState<StudyItem | null>(null);
 
   useEffect(() => {
@@ -105,6 +107,7 @@ export function ListPage({ category }: ListPageProps) {
         <label className="btn" onClick={() => exportToCSV(items, `${category}.csv`)}>Export CSV</label>
         <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
         <label className="btn" onClick={() => setShowFlash(true)}>Flashcard</label>
+        <label className="btn" onClick={() => setShowCheck(true)}>Kiểm tra</label>
       </div>
 
       <div className="table">
@@ -150,6 +153,13 @@ export function ListPage({ category }: ListPageProps) {
           items={filtered}
           onClose={() => setShowFlash(false)}
           storageKey={`korean-study:flashcards:${category}`}
+        />
+      )}
+      {showCheck && (
+        <CheckModal
+          items={filtered}
+          onClose={() => setShowCheck(false)}
+          storageKey={`korean-study:check:${category}`}
         />
       )}
     </div>
