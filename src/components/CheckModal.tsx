@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { StudyItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
 
@@ -41,11 +41,22 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
     }
   }, [items]);
 
-  const deck = useMemo(() => shuffledDeck, [shuffledDeck]);
+  const deck = useMemo(() => shuffledDeck.filter(i => !learnedIds.has(i.id)), [shuffledDeck, learnedIds]);
   const totalAll = shuffledDeck.length;
   const learned = learnedIds.size;
   const notLearned = Math.max(0, totalAll - learned);
   const current = deck[index];
+
+  // Keep index within bounds when deck changes
+  useEffect(() => {
+    if (deck.length === 0) {
+      setIndex(0);
+      return;
+    }
+    if (index >= deck.length) {
+      setIndex(0);
+    }
+  }, [deck, index]);
 
   // Reset input and result when current card changes
   useEffect(() => {
@@ -54,9 +65,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
     setIsCorrect(false);
   }, [current]);
 
-  // Early returns after all hooks
-  if (shuffledDeck.length === 0) return null;
-  if (!current) return null;
+  // Note: Do not early-return before all hooks run to avoid hook order issues
 
   function goNext() {
     const len = deck.length;
@@ -71,7 +80,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
   }
 
   function checkAnswer() {
-    if (!current || !userInput.trim()) return;
+    if (!current) return;
     
     const userAnswer = userInput.trim().toLowerCase();
     const correctAnswer = current.korean.toLowerCase();
@@ -94,8 +103,28 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
     // Don't move item to end immediately - wait for nextQuestion()
   }
 
+  // Autofocus input when card changes and result is hidden
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!showResult) {
+      inputRef.current?.focus();
+    }
+  }, [current, showResult]);
+
+  // When showing result, allow Enter to trigger Next
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && showResult && deck.length > 0) {
+        e.preventDefault();
+        nextQuestion();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [showResult, index, deck.length, isCorrect]);
+
   function handleKeyPress(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !showResult) {
+    if (e.key === 'Enter' && !showResult && current) {
       checkAnswer();
     }
   }
@@ -170,7 +199,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="label" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)' }}>Câu hỏi:</span> 
-              <span className="value" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', fontWeight: '600' }}>{index + 1}/{totalAll}</span>
+              <span className="value" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', fontWeight: '600' }}>{deck.length === 0 ? 0 : index + 1}/{deck.length}</span>
             </div>
           </div>
         </div>
@@ -186,6 +215,17 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               fontSize: 'clamp(13px, 3vw, 15px)'
             }}>
               Không có từ vựng nào để kiểm tra.
+            </div>
+          ) : deck.length === 0 ? (
+            <div style={{ 
+              padding: 'clamp(12px, 3vw, 16px)', 
+              border: '1px solid #22305c', 
+              borderRadius: 'clamp(6px, 1.5vw, 8px)', 
+              marginBottom: 'clamp(8px, 2vw, 12px)', 
+              background: 'rgba(255,255,255,0.02)',
+              fontSize: 'clamp(13px, 3vw, 15px)'
+            }}>
+              Bạn đã hoàn thành tất cả từ cần ôn. 🎉
             </div>
           ) : (
             <div
@@ -267,6 +307,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                     background: showResult ? (isCorrect ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)') : 'white',
                     boxSizing: 'border-box'
                   }}
+                  ref={inputRef}
                   disabled={showResult}
                 />
               </div>
@@ -484,13 +525,13 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               <button 
                 className="btn" 
                 onClick={checkAnswer}
-                disabled={!userInput.trim()}
                 style={{ 
                   padding: 'clamp(6px, 1.5vw, 10px)', 
                   fontSize: 'clamp(11px, 2.5vw, 14px)',
                   minWidth: 'auto',
                   flex: '0 0 auto'
                 }}
+                disabled={!current}
               >
                 Kiểm tra
               </button>
@@ -504,6 +545,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                   minWidth: 'auto',
                   flex: '0 0 auto'
                 }}
+                disabled={deck.length === 0}
               >
                 Tiếp theo
               </button>
