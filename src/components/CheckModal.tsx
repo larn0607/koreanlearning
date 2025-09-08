@@ -69,13 +69,13 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
 
   function goNext() {
     const len = deck.length;
-    if (len === 0) return;
+    if (len === 0 || index === len - 1) return;
     setIndex(prev => (prev + 1) % len);
   }
 
   function goPrev() {
     const len = deck.length;
-    if (len === 0) return;
+    if (len === 0 || index === 0) return;
     setIndex(prev => (prev - 1 + len) % len);
   }
 
@@ -88,18 +88,6 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
     const correct = userAnswer === correctAnswer;
     setIsCorrect(correct);
     setShowResult(true);
-    
-    if (correct) {
-      // Mark as learned
-      setLearnedIds(prev => {
-        const next = new Set(prev);
-        next.add(current.id);
-        try {
-          localStorage.setItem(storageKey, JSON.stringify({ ids: Array.from(next), savedAt: Date.now() }));
-        } catch { }
-        return next;
-      });
-    }
     // Don't move item to end immediately - wait for nextQuestion()
   }
 
@@ -131,6 +119,18 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
 
   function nextQuestion() {
     if (isCorrect) {
+      // Mark as learned now so details are shown before filtering
+      const curId = current?.id;
+      if (curId) {
+        setLearnedIds(prev => {
+          const next = new Set(prev);
+          next.add(curId);
+          try {
+            localStorage.setItem(storageKey, JSON.stringify({ ids: Array.from(next), savedAt: Date.now() }));
+          } catch { }
+          return next;
+        });
+      }
       goNext();
     } else {
       // For wrong answers, move current item to end of deck first
@@ -492,7 +492,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                 minWidth: 'auto',
                 flex: '0 0 auto'
               }}
-              disabled={deck.length <= 1}
+              disabled={deck.length <= 1 || index === 0}
             >
               ← Trước
             </button>
@@ -508,7 +508,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                 minWidth: 'auto',
                 flex: '0 0 auto'
               }}
-              disabled={deck.length <= 1}
+              disabled={deck.length <= 1 || index === deck.length - 1}
             >
               Sau →
             </button>
