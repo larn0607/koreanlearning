@@ -4,7 +4,7 @@ import { EditItemModal } from '../components/EditItemModal';
 import { FlashcardModal } from '../components/FlashcardModal';
 import { CheckModal } from '../components/CheckModal';
 import type { StudyItem } from '../types';
-import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent } from '../utils/csv';
+import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent, clearCheckStorage } from '../utils/csv';
 
 type ListPageProps = {
   category: 'vocab' | 'grammar';
@@ -67,6 +67,8 @@ export function ListPage({ category }: ListPageProps) {
         if (areItemsDifferent(prev, mergedItems)) {
           // Clear flashcard storage when data changes
           clearFlashcardStorage(category);
+          // Clear check storage when data changes
+          clearCheckStorage(category);
         }
         
         return mergedItems;
@@ -85,6 +87,7 @@ export function ListPage({ category }: ListPageProps) {
     const confirmed = window.confirm('Bạn có chắc muốn xóa tất cả dữ liệu hiện tại?');
     if (!confirmed) return;
     clearFlashcardStorage(category);
+    clearCheckStorage(category);
     setSelectedId(null);
     setEditing(null);
     setItems([]);

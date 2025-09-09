@@ -81,6 +81,12 @@ export function clearFlashcardStorage(category: string) {
   localStorage.removeItem(storageKey);
 }
 
+// Utility function to clear check storage for a category
+export function clearCheckStorage(category: string) {
+  const storageKey = `korean-study:check:${category}`;
+  localStorage.removeItem(storageKey);
+}
+
 // Utility function to check if two arrays of items are different
 export function areItemsDifferent<T extends { id: string }>(current: T[], imported: T[]): boolean {
   // If lengths are different, they're different

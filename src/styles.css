@@ -35,7 +35,7 @@ body {
 
 .btn { background:#1b2960; color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:8px; cursor:pointer; }
 .btn:hover { border-color:#3b57a8; }
-.btn:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(0.2); }
+ui.btn:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(0.2); }
 .btn:disabled:hover { border-color: var(--border); }
 .btn.small { padding:6px 10px; }
 .btn.danger { background: #3a1a1a; border-color: #6b2a2a; }

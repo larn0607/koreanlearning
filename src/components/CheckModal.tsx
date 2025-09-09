@@ -45,7 +45,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
   const totalAll = shuffledDeck.length;
   const learned = learnedIds.size;
   const notLearned = Math.max(0, totalAll - learned);
-  const current = deck[index];
+  const current = deck[index] ?? deck[deck.length - 1];
 
   // Keep index within bounds when deck changes
   useEffect(() => {
@@ -133,14 +133,22 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
       }
       goNext();
     } else {
-      // For wrong answers, move current item to end of deck first
+      // For wrong answers, move current item to end of shuffledDeck by id
+      const curId = current?.id;
+      if (!curId) {
+        goNext();
+        return;
+      }
       setShuffledDeck(prev => {
         const newDeck = [...prev];
-        const currentItem = newDeck.splice(index, 1)[0];
-        newDeck.push(currentItem);
+        const idxInShuffled = newDeck.findIndex(i => i.id === curId);
+        if (idxInShuffled >= 0) {
+          const [currentItem] = newDeck.splice(idxInShuffled, 1);
+          newDeck.push(currentItem);
+        }
         return newDeck;
       });
-      // Then go to next (which will be the same index since we removed current item)
+      // Then go to next
       goNext();
     }
   }
@@ -440,7 +448,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               )}
 
               {/* Mark indicator for learned items */}
-              {learnedIds.has(current.id) && (
+              {current && learnedIds.has(current.id) && (
                 <div style={{ 
                   position: 'absolute', 
                   top: 'clamp(6px, 1.5vw, 8px)', 
