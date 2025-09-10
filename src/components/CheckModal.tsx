@@ -205,10 +205,10 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               <span className="label" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)' }}>Chưa thuộc:</span> 
               <span className="value" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', fontWeight: '600' }}>{notLearned}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="label" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)' }}>Câu hỏi:</span> 
               <span className="value" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', fontWeight: '600' }}>{deck.length === 0 ? 0 : index + 1}/{deck.length}</span>
-            </div>
+            </div> */}
           </div>
         </div>
 

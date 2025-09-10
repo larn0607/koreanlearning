@@ -133,9 +133,9 @@ export function ListPage({ category }: ListPageProps) {
                 <div className="cell-input">{item.english}</div>
               </div>
               <div className="cell actions">
-                <button className="btn small" onClick={() => setSelectedId(item.id)}>Xem</button>
-                <button className="btn small" onClick={() => setEditing(item)}>Chỉnh sửa</button>
-                <button className="btn small danger" onClick={() => removeItem(item.id)}>Xóa</button>
+                {/* <button className="btn small" onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}>Xem</button> */}
+                <button className="btn small" onClick={(e) => { e.stopPropagation(); setEditing(item); }}>Chỉnh sửa</button>
+                <button className="btn small danger" onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}>Xóa</button>
               </div>
             </div>
           ))}
