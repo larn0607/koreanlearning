@@ -69,7 +69,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
 
   function goNext() {
     const len = deck.length;
-    if (len === 0 || index === len - 1) return;
+    if (len === 0) return;
     setIndex(prev => (prev + 1) % len);
   }
 
