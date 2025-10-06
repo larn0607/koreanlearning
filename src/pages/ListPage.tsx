@@ -4,6 +4,7 @@ import { EditItemModal } from '../components/EditItemModal';
 import { FlashcardModal } from '../components/FlashcardModal';
 import { CheckModal } from '../components/CheckModal';
 import type { StudyItem } from '../types';
+import { useParams } from 'react-router-dom';
 import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent, clearCheckStorage } from '../utils/csv';
 
 type ListPageProps = {
@@ -12,8 +13,9 @@ type ListPageProps = {
 
 const STORAGE_KEY_PREFIX = 'korean-study:';
 
-function loadItems(category: string): StudyItem[] {
-  const raw = localStorage.getItem(STORAGE_KEY_PREFIX + category);
+function loadItems(category: string, cardId?: string): StudyItem[] {
+  const key = STORAGE_KEY_PREFIX + (cardId ? `${category}:${cardId}` : category);
+  const raw = localStorage.getItem(key);
   if (!raw) return [];
   try {
     return JSON.parse(raw) as StudyItem[];
@@ -22,12 +24,14 @@ function loadItems(category: string): StudyItem[] {
   }
 }
 
-function saveItems(category: string, items: StudyItem[]) {
-  localStorage.setItem(STORAGE_KEY_PREFIX + category, JSON.stringify(items));
+function saveItems(category: string, items: StudyItem[], cardId?: string) {
+  const key = STORAGE_KEY_PREFIX + (cardId ? `${category}:${cardId}` : category);
+  localStorage.setItem(key, JSON.stringify(items));
 }
 
 export function ListPage({ category }: ListPageProps) {
-  const [items, setItems] = useState<StudyItem[]>(() => loadItems(category));
+  const { cardId } = useParams();
+  const [items, setItems] = useState<StudyItem[]>(() => loadItems(category, cardId));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [showFlash, setShowFlash] = useState(false);
@@ -35,13 +39,13 @@ export function ListPage({ category }: ListPageProps) {
   const [editing, setEditing] = useState<StudyItem | null>(null);
 
   useEffect(() => {
-    saveItems(category, items);
-  }, [items]);
+    saveItems(category, items, cardId);
+  }, [items, cardId]);
 
   useEffect(() => {
-    setItems(loadItems(category));
+    setItems(loadItems(category, cardId));
     setSelectedId(null);
-  }, [category]);
+  }, [category, cardId]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -66,9 +70,9 @@ export function ListPage({ category }: ListPageProps) {
         // Check if the merged data is different from current data
         if (areItemsDifferent(prev, mergedItems)) {
           // Clear flashcard storage when data changes
-          clearFlashcardStorage(category);
+          clearFlashcardStorage(cardId ? `${category}:${cardId}` : category);
           // Clear check storage when data changes
-          clearCheckStorage(category);
+          clearCheckStorage(cardId ? `${category}:${cardId}` : category);
         }
         
         return mergedItems;
@@ -86,8 +90,8 @@ export function ListPage({ category }: ListPageProps) {
   function handleClearAll() {
     const confirmed = window.confirm('Bạn có chắc muốn xóa tất cả dữ liệu hiện tại?');
     if (!confirmed) return;
-    clearFlashcardStorage(category);
-    clearCheckStorage(category);
+    clearFlashcardStorage(cardId ? `${category}:${cardId}` : category);
+    clearCheckStorage(cardId ? `${category}:${cardId}` : category);
     setSelectedId(null);
     setEditing(null);
     setItems([]);
@@ -155,14 +159,14 @@ export function ListPage({ category }: ListPageProps) {
         <FlashcardModal
           items={filtered}
           onClose={() => setShowFlash(false)}
-          storageKey={`korean-study:flashcards:${category}`}
+          storageKey={`korean-study:flashcards:${cardId ? `${category}:${cardId}` : category}`}
         />
       )}
       {showCheck && (
         <CheckModal
           items={filtered}
           onClose={() => setShowCheck(false)}
-          storageKey={`korean-study:check:${category}`}
+          storageKey={`korean-study:check:${cardId ? `${category}:${cardId}` : category}`}
         />
       )}
     </div>

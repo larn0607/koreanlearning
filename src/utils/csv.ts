@@ -29,7 +29,32 @@ export function parseCSV(file: File): Promise<StudyItem[]> {
 }
 
 export function exportToCSV(items: StudyItem[], filename = 'export.csv') {
-  const csv = Papa.unparse(items);
+  // Ensure header has no quotes; quote all data fields (including id)
+  const fields = [
+    'id',
+    'korean',
+    'vietnamese',
+    'english',
+    'description',
+    'example1_ko',
+    'example1_vi',
+    'example1_en',
+    'example2_ko',
+    'example2_vi',
+    'example2_en'
+  ];
+  // First, generate CSV with quotes for all fields
+  const csvAllQuoted = Papa.unparse(items, {
+    columns: fields,
+    quotes: true,
+    header: true
+  } as any);
+  // Replace header line with plain header (no quotes)
+  const lines = csvAllQuoted.split('\n');
+  if (lines.length > 0) {
+    lines[0] = fields.join(',');
+  }
+  const csv = lines.join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
