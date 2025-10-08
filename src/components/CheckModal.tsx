@@ -70,6 +70,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
   function goNext() {
     const len = deck.length;
     if (len === 0) return;
+    // Always advance index cyclically relative to current filtered deck
     setIndex(prev => (prev + 1) % len);
   }
 
@@ -119,7 +120,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
 
   function nextQuestion() {
     if (isCorrect) {
-      // Mark as learned now so details are shown before filtering
+      // Mark as learned and persist
       const curId = current?.id;
       if (curId) {
         setLearnedIds(prev => {
@@ -131,9 +132,10 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
           return next;
         });
       }
+      // Advance to next remaining (deck will shrink on render)
       goNext();
     } else {
-      // For wrong answers, move current item to end of shuffledDeck by id
+      // Requeue wrong item to end of the underlying shuffled deck
       const curId = current?.id;
       if (!curId) {
         goNext();
@@ -148,8 +150,16 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
         }
         return newDeck;
       });
-      // Then go to next
-      goNext();
+      // Ensure we can still proceed when only one item remains in deck
+      // If only one item is in deck, keep index at 0 but hide result to allow next attempt
+      if (deck.length === 1) {
+        setShowResult(false);
+        setUserInput('');
+        setIsCorrect(false);
+        // keep index as 0
+      } else {
+        goNext();
+      }
     }
   }
 

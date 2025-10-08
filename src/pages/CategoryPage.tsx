@@ -31,6 +31,8 @@ export function CategoryPage({ category }: CategoryPageProps) {
   const [cards, setCards] = useState<Card[]>(() => loadCards(category));
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState('');
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +48,12 @@ export function CategoryPage({ category }: CategoryPageProps) {
   function handleCreate() {
     const trimmed = name.trim();
     if (!trimmed) return;
+    // prevent duplicate names (case-insensitive)
+    const exists = cards.some(c => c.name.trim().toLowerCase() === trimmed.toLowerCase());
+    if (exists) {
+      window.alert('Tên thẻ đã tồn tại. Vui lòng chọn tên khác.');
+      return;
+    }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     const newCard: Card = { id, name: trimmed, createdAt: Date.now() };
     const next = [newCard, ...cards];
@@ -61,6 +69,73 @@ export function CategoryPage({ category }: CategoryPageProps) {
     const next = cards.filter(c => c.id !== cardId);
     setCards(next);
     saveCards(category, next);
+  }
+
+  function migrateStorageKeys(oldName: string, newName: string) {
+    // Items storage
+    const itemsOldKey = `korean-study:${category}:${oldName}`;
+    const itemsNewKey = `korean-study:${category}:${newName}`;
+    const itemsRaw = localStorage.getItem(itemsOldKey);
+    if (itemsRaw != null) {
+      localStorage.setItem(itemsNewKey, itemsRaw);
+      localStorage.removeItem(itemsOldKey);
+    }
+    // Flashcards progress
+    const flashOldKey = `korean-study:flashcards:${category}:${oldName}`;
+    const flashNewKey = `korean-study:flashcards:${category}:${newName}`;
+    const flashRaw = localStorage.getItem(flashOldKey);
+    if (flashRaw != null) {
+      localStorage.setItem(flashNewKey, flashRaw);
+      localStorage.removeItem(flashOldKey);
+    }
+    // Check progress
+    const checkOldKey = `korean-study:check:${category}:${oldName}`;
+    const checkNewKey = `korean-study:check:${category}:${newName}`;
+    const checkRaw = localStorage.getItem(checkOldKey);
+    if (checkRaw != null) {
+      localStorage.setItem(checkNewKey, checkRaw);
+      localStorage.removeItem(checkOldKey);
+    }
+  }
+
+  function startRename(card: Card) {
+    setRenamingId(card.id);
+    setRenameValue(card.name);
+  }
+
+  function confirmRename() {
+    const targetId = renamingId;
+    const newName = renameValue.trim();
+    if (!targetId || !newName) {
+      setRenamingId(null);
+      setRenameValue('');
+      return;
+    }
+    const old = cards.find(c => c.id === targetId);
+    if (!old || old.name === newName) {
+      setRenamingId(null);
+      setRenameValue('');
+      return;
+    }
+    // prevent duplicate names (exclude current card), case-insensitive
+    const exists = cards.some(c => c.id !== targetId && c.name.trim().toLowerCase() === newName.toLowerCase());
+    if (exists) {
+      window.alert('Tên thẻ đã tồn tại. Vui lòng chọn tên khác.');
+      return;
+    }
+    // Update card list
+    const next = cards.map(c => c.id === targetId ? { ...c, name: newName } : c);
+    setCards(next);
+    saveCards(category, next);
+    // Migrate related storage keys
+    migrateStorageKeys(old.name, newName);
+    setRenamingId(null);
+    setRenameValue('');
+  }
+
+  function cancelRename() {
+    setRenamingId(null);
+    setRenameValue('');
   }
 
   return (
@@ -82,7 +157,7 @@ export function CategoryPage({ category }: CategoryPageProps) {
         </div>
         <div className="tbody">
           {sortedCards.map(card => (
-            <div className="row" key={card.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/${category}/${card.id}`)}>
+            <div className="row" key={card.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/${category}/${card.name}`)}>
               <div className="cell">
                 <div className="cell-input">{card.name}</div>
               </div>
@@ -90,7 +165,8 @@ export function CategoryPage({ category }: CategoryPageProps) {
                 <div className="cell-input">{new Date(card.createdAt).toLocaleString()}</div>
               </div>
               <div className="cell actions">
-                <Link className="btn small" to={`/${category}/${card.id}`} onClick={(e) => e.stopPropagation()}>Mở</Link>
+                <Link className="btn small" to={`/${category}/${card.name}`} onClick={(e) => e.stopPropagation()}>Mở</Link>
+                <button className="btn small" onClick={(e) => { e.stopPropagation(); startRename(card); }}>Sửa</button>
                 <button className="btn small danger" onClick={(e) => { e.stopPropagation(); handleDelete(card.id); }}>Xóa</button>
               </div>
             </div>
@@ -117,12 +193,47 @@ export function CategoryPage({ category }: CategoryPageProps) {
                   onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); }}
                   autoFocus
                 />
-                <div className="helper">Đặt tên ngắn gọn, dễ nhận biết.</div>
+                <div className="helper">{(() => {
+                  const trimmed = name.trim();
+                  const isDup = trimmed && cards.some(c => c.name.trim().toLowerCase() === trimmed.toLowerCase());
+                  return isDup ? 'Tên thẻ đã tồn tại.' : 'Đặt tên ngắn gọn, dễ nhận biết.';
+                })()}</div>
               </div>
             </div>
             <div className="modal-actions">
               <button className="btn" onClick={() => setShowAdd(false)}>Hủy</button>
-              <button className="btn primary" onClick={handleCreate} disabled={!name.trim()}>Tạo</button>
+              <button className="btn primary" onClick={handleCreate} disabled={!name.trim() || cards.some(c => c.name.trim().toLowerCase() === name.trim().toLowerCase())}>Tạo</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {renamingId && (
+        <div className="modal-backdrop" onClick={cancelRename}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">Đổi tên thẻ</h3>
+            <div className="form-grid">
+              <div>
+                <label className="label" htmlFor="renameCard">Tên mới</label>
+                <input
+                  id="renameCard"
+                  className="input"
+                  placeholder="Nhập tên thẻ mới"
+                  value={renameValue}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') confirmRename(); }}
+                  autoFocus
+                />
+                <div className="helper">{(() => {
+                  const trimmed = renameValue.trim();
+                  const isDup = trimmed && cards.some(c => c.id !== renamingId && c.name.trim().toLowerCase() === trimmed.toLowerCase());
+                  return isDup ? 'Tên thẻ đã tồn tại.' : '';
+                })()}</div>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn" onClick={cancelRename}>Hủy</button>
+              <button className="btn primary" onClick={confirmRename} disabled={!renameValue.trim() || cards.some(c => c.id !== renamingId && c.name.trim().toLowerCase() === renameValue.trim().toLowerCase())}>Lưu</button>
             </div>
           </div>
         </div>

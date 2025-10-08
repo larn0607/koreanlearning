@@ -111,7 +111,7 @@ export function ListPage({ category }: ListPageProps) {
           Import CSV
           <input type="file" accept=".csv" onChange={handleImportChange} hidden />
         </label>
-        <label className="btn" onClick={() => exportToCSV(items, `${category}.csv`)}>Export CSV</label>
+        <label className="btn" onClick={() => exportToCSV(items, `${category}_${cardId}.csv`)}>Export CSV</label>
         <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
         <label className="btn" onClick={() => setShowFlash(true)}>Flashcard</label>
         <label className="btn" onClick={() => setShowCheck(true)}>Kiểm tra</label>
