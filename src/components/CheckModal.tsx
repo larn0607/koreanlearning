@@ -189,7 +189,11 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
           padding: 'clamp(8px, 2vw, 16px)',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          userSelect: 'text',
+          WebkitUserSelect: 'text',
+          position: 'relative',
+          zIndex: 1001
         }}
         onClick={(e) => e.stopPropagation()}
       >

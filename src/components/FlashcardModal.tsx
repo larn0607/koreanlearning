@@ -135,7 +135,11 @@ export function FlashcardModal({ items, onClose, storageKey = 'korean-study:flas
           padding: '16px',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          userSelect: 'text',
+          WebkitUserSelect: 'text',
+          position: 'relative',
+          zIndex: 1001
         }}
         onClick={(e) => e.stopPropagation()}
       >

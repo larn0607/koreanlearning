@@ -2,25 +2,36 @@ import { useEffect, useMemo, useState } from 'react';
 import type { NoteItem } from '../types';
 import { exportNotesToCSV, parseNotesCSV, clearFlashcardStorage, areItemsDifferent } from '../utils/csv';
 import { normalizeNewlines } from '../utils/text';
+import { useParams } from 'react-router-dom';
 
-const STORAGE_KEY = 'korean-study:notes';
+const STORAGE_KEY_PREFIX = 'korean-study:notes';
 
-function loadNotes(): NoteItem[] {
-  const raw = localStorage.getItem(STORAGE_KEY);
+function loadNotes(cardId?: string): NoteItem[] {
+  const key = cardId ? `${STORAGE_KEY_PREFIX}:${cardId}` : STORAGE_KEY_PREFIX;
+  const raw = localStorage.getItem(key);
   if (!raw) return [];
   try { return JSON.parse(raw) as NoteItem[]; } catch { return []; }
 }
 
-function saveNotes(items: NoteItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+function saveNotes(items: NoteItem[], cardId?: string) {
+  const key = cardId ? `${STORAGE_KEY_PREFIX}:${cardId}` : STORAGE_KEY_PREFIX;
+  localStorage.setItem(key, JSON.stringify(items));
 }
 
-export default function NotesPage() {
-  const [items, setItems] = useState<NoteItem[]>(loadNotes);
+export function NotesListPage() {
+  const { cardId } = useParams();
+  const [items, setItems] = useState<NoteItem[]>(() => loadNotes(cardId));
   const [selected, setSelected] = useState<NoteItem | null>(null);
   const [query, setQuery] = useState('');
 
-  useEffect(() => { saveNotes(items); }, [items]);
+  useEffect(() => {
+    saveNotes(items, cardId);
+  }, [items, cardId]);
+
+  useEffect(() => {
+    setItems(loadNotes(cardId));
+    setSelected(null);
+  }, [cardId]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -41,10 +52,7 @@ export default function NotesPage() {
         [...prev, ...newItems].forEach(i => map.set(i.id, i));
         const mergedItems = Array.from(map.values());
         
-        // Check if the merged data is different from current data
         if (areItemsDifferent(prev, mergedItems)) {
-          // Clear flashcard storage for all categories when notes change
-          // since notes might affect study context
           clearFlashcardStorage('vocab');
           clearFlashcardStorage('grammar');
         }
@@ -53,6 +61,17 @@ export default function NotesPage() {
       });
       e.target.value = '';
     });
+  }
+
+  function removeItem(id: string) {
+    setItems(prev => prev.filter(i => i.id !== id));
+  }
+
+  function handleClearAll() {
+    const confirmed = window.confirm('Bạn có chắc muốn xóa tất cả dữ liệu hiện tại?');
+    if (!confirmed) return;
+    setSelected(null);
+    setItems([]);
   }
 
   return (
@@ -64,7 +83,8 @@ export default function NotesPage() {
           Import CSV
           <input type="file" accept=".csv" onChange={handleImportChange} hidden />
         </label>
-        <label className="btn" onClick={() => exportNotesToCSV(items, 'notes.csv')}>Export CSV</label>
+        <label className="btn" onClick={() => exportNotesToCSV(items, `notes_${cardId || 'all'}.csv`)}>Export CSV</label>
+        <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
       </div>
 
       <div className="table">
@@ -80,6 +100,7 @@ export default function NotesPage() {
               <div className="cell"><div className="cell-input">{n.description.substring(0, 100)}{n.description.length > 100 ? '...' : ''}</div></div>
               <div className="cell actions">
                 <button className="btn small" onClick={() => setSelected(n)}>Xem</button>
+                <button className="btn small danger" onClick={() => removeItem(n.id)}>Xóa</button>
               </div>
             </div>
           ))}
@@ -121,5 +142,4 @@ export default function NotesPage() {
     </div>
   );
 }
-
 

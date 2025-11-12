@@ -15,13 +15,8 @@ export type StudyItem = {
 export type NoteItem = {
   id: string;
   title: string;
-  summary: string;
-  description_1?: string;
-  description_2?: string;
-  description_3?: string;
-  example_1?: string;
-  example_2?: string;
-  example_3?: string;
+  description: string;
+  example: string;
 };
 
 

@@ -74,14 +74,9 @@ export function parseNotesCSV(file: File): Promise<NoteItem[]> {
         const items: NoteItem[] = rows.map((row, index) => ({
           id: row.id || `${Date.now()}-${index}`,
           title: row.title || row.Title || '',
-          summary: row.summary || row.Summary || '',
-          description_1: row.description_1 || row.Description_1 || '',
-          description_2: row.description_2 || row.Description_2 || '',
-          description_3: row.description_3 || row.Description_3 || '',
-          example_1: row.example_1 || row.Example_1 || '',
-          example_2: row.example_2 || row.Example_2 || '',
-          example_3: row.example_3 || row.Example_3 || ''
-        })).filter(i => i.title || i.summary);
+          description: row.description || row.Description || '',
+          example: row.example || row.Example || ''
+        })).filter(i => i.title || i.description);
         resolve(items);
       },
       error: (error: unknown) => reject(error)
@@ -90,7 +85,17 @@ export function parseNotesCSV(file: File): Promise<NoteItem[]> {
 }
 
 export function exportNotesToCSV(items: NoteItem[], filename = 'notes.csv') {
-  const csv = Papa.unparse(items);
+  const fields = ['id', 'title', 'description', 'example'];
+  const csvAllQuoted = Papa.unparse(items, {
+    columns: fields,
+    quotes: true,
+    header: true
+  } as any);
+  const lines = csvAllQuoted.split('\n');
+  if (lines.length > 0) {
+    lines[0] = fields.join(',');
+  }
+  const csv = lines.join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');

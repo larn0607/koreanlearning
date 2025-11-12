@@ -5,7 +5,8 @@ import { App } from './App';
 import { Home } from './pages/Home';
 import { ListPage } from './pages/ListPage.tsx';
 import { CategoryPage } from './pages/CategoryPage';
-import NotesPage from './pages/NotesPage';
+import { NotesCategoryPage } from './pages/NotesCategoryPage';
+import { NotesListPage } from './pages/NotesListPage';
 import './styles.css';
 
 const router = createBrowserRouter([
@@ -18,7 +19,8 @@ const router = createBrowserRouter([
       { path: 'vocab/:cardId', element: <ListPage category="vocab" /> },
       { path: 'grammar', element: <CategoryPage category="grammar" /> },
       { path: 'grammar/:cardId', element: <ListPage category="grammar" /> },
-      { path: 'notes', element: <NotesPage /> }
+      { path: 'notes', element: <NotesCategoryPage /> },
+      { path: 'notes/:cardId', element: <NotesListPage /> }
     ]
   }
 ]);

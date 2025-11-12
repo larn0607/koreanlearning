@@ -46,6 +46,7 @@ ui.btn:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(0.2); }
 .badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; text-transform:uppercase; letter-spacing:0.4px; padding:4px 8px; border-radius:999px; border:1px solid var(--border); background: #0e1530; color:#aab8ff; }
 .badge.vocab { background:#0f1b3f; color:#9dc2ff; border-color:#27418f; }
 .badge.grammar { background:#1b133f; color:#d3a9ff; border-color:#4b2a8f; }
+.badge.notes { background:#1f3f1b; color:#a9ffd3; border-color:#2a8f4b; }
 
 .table { margin-top:12px; background: var(--panel); border:1px solid var(--border); border-radius:12px; overflow: auto; }
 .thead { display:grid; grid-template-columns: 1.2fr 1.2fr 1.2fr 0.7fr; gap:1px; background:#0e1530; color:#aab8ff; padding:10px 12px; font-weight:600; }
@@ -65,10 +66,16 @@ ui.btn:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(0.2); }
 .actions { display:flex; gap:8px; justify-content:flex-end; }
 .empty { padding: 16px; color: #8aa0ff; text-align: center; }
 
-.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; padding: 16px; }
-.modal { background: var(--panel); border:1px solid var(--border); border-radius:12px; max-width: 720px; width: 100%; padding: 20px; max-height: 85vh; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; padding: 16px; z-index: 1000; }
+.modal { background: var(--panel); border:1px solid var(--border); border-radius:12px; max-width: 720px; width: 100%; padding: 20px; max-height: 85vh; position: relative; z-index: 1001; user-select: text !important; -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; }
+.modal * { user-select: text !important; -webkit-user-select: text !important; -ms-user-select: text !important; }
+.modal input, .modal textarea, .modal button { user-select: auto !important; -webkit-user-select: auto !important; -ms-user-select: auto !important; }
+.modal .value, .modal .label, .modal p, .modal div:not(.modal-actions):not(.form-grid), .modal span { pointer-events: auto !important; -webkit-touch-callout: default; -webkit-user-select: text !important; -ms-user-select: text !important; user-select: text !important; cursor: text !important; }
+.modal .value, .modal span:not(button span) { -webkit-user-select: text !important; -ms-user-select: text !important; user-select: text !important; }
+.modal .detail, .modal div[style*="display:grid"] { overflow: visible !important; }
 .modal-title { margin-top: 0; }
 .label { display:inline-block; width: 110px; color:#aab8ff; }
+.modal .label { display: block; width: auto; margin-bottom: 4px; }
 .value { display:block; font-weight:600; margin-top: 2px; white-space: pre-wrap; }
 .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; flex-wrap: wrap; }
 .input { width:100%; background:#0e1530; border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:8px; }

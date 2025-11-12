@@ -26,7 +26,15 @@ export function EditItemModal({ item, onClose, onSave }: EditItemModalProps) {
     <div className="modal-backdrop">
       <div
         className="modal"
-        style={{ maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
+        style={{ 
+          maxHeight: '80vh', 
+          display: 'flex', 
+          flexDirection: 'column',
+          userSelect: 'text',
+          WebkitUserSelect: 'text',
+          position: 'relative',
+          zIndex: 1001
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="modal-title">Chỉnh sửa</h3>
