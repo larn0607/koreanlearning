@@ -1,16 +1,36 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import type { StudyItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
 
-type CheckModalProps = {
-  items: StudyItem[];
-  onClose: () => void;
-  storageKey?: string;
-};
+const STORAGE_KEY_PREFIX = 'korean-study:';
 
-export function CheckModal({ items, onClose, storageKey = 'korean-study:check:general' }: CheckModalProps) {
+function loadItems(category: string, cardId?: string): StudyItem[] {
+  const key = STORAGE_KEY_PREFIX + (cardId ? `${category}:${cardId}` : category);
+  const raw = localStorage.getItem(key);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as StudyItem[];
+  } catch {
+    return [];
+  }
+}
+
+export function CheckPage() {
+  const { cardId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Extract category from pathname
+  const category: 'vocab' | 'grammar' | null = location.pathname.includes('/vocab/') ? 'vocab' : 
+                                                location.pathname.includes('/grammar/') ? 'grammar' : null;
+  const [items] = useState<StudyItem[]>(() => {
+    if (!category) return [];
+    return loadItems(category, cardId);
+  });
   const [shuffledDeck, setShuffledDeck] = useState<StudyItem[]>([]);
   const [index, setIndex] = useState(0);
+  const storageKey = `korean-study:check:${cardId ? `${category}:${cardId}` : category}`;
   const [learnedIds, setLearnedIds] = useState<Set<string>>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
@@ -64,8 +84,6 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
     setShowResult(false);
     setIsCorrect(false);
   }, [current]);
-
-  // Note: Do not early-return before all hooks run to avoid hook order issues
 
   function goNext() {
     const len = deck.length;
@@ -163,89 +181,76 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
     }
   }
 
+  if (!category) {
+    return (
+      <div className="list-page">
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <p>Category không hợp lệ</p>
+          <button className="btn" onClick={() => navigate('/')}>Về trang chủ</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div 
-      className="modal-backdrop"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
+    <div className="list-page">
+      <div className="toolbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button className="btn" onClick={() => navigate(cardId ? `/${category}/${cardId}` : `/${category}`)}>
+            ← Quay lại
+          </button>
+          <span className={`badge ${category}`}>{category === 'vocab' ? 'Từ vựng' : 'Ngữ pháp'}</span>
+          <div style={{ fontWeight: 600, fontSize: 18 }}>Kiểm tra từ vựng</div>
+        </div>
+      </div>
+
+      <div style={{ 
+        maxWidth: 'min(720px, calc(100vw - 32px))', 
+        margin: '0 auto', 
+        padding: '16px',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '4px',
-        zIndex: 1000
-      }}
-    >
-      <div 
-        className="modal" 
-        style={{
-          background: 'var(--panel)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          width: '100%',
-          maxWidth: 'min(720px, calc(100vw - 8px))',
-          maxHeight: 'calc(100vh - 8px)',
-          padding: 'clamp(8px, 2vw, 16px)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          userSelect: 'text',
-          WebkitUserSelect: 'text',
-          position: 'relative',
-          zIndex: 1001
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div style={{ flex: '0 0 auto', marginBottom: 'clamp(8px, 2vw, 12px)' }}>
-          <h3 className="modal-title" style={{ 
-            marginTop: 0, 
-            marginBottom: 'clamp(4px, 1.5vw, 8px)', 
-            fontSize: 'clamp(16px, 4vw, 18px)',
-            lineHeight: '1.2'
-          }}>Kiểm tra từ vựng</h3>
+        flexDirection: 'column',
+        minHeight: 'calc(100vh - 200px)'
+      }}>
+        <div style={{ flex: '0 0 auto', marginBottom: '12px' }}>
           <div className="detail" style={{ 
             marginBottom: 0, 
-            fontSize: 'clamp(12px, 3vw, 14px)',
+            fontSize: '14px',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-            gap: 'clamp(4px, 1vw, 8px)'
+            gap: '8px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="label" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)' }}>Đã thuộc:</span> 
-              <span className="value" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', fontWeight: '600' }}>{learned}/{totalAll}</span>
+              <span className="label">Đã thuộc:</span> 
+              <span className="value" style={{ fontWeight: '600' }}>{learned}/{totalAll}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="label" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)' }}>Chưa thuộc:</span> 
-              <span className="value" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', fontWeight: '600' }}>{notLearned}</span>
+              <span className="label">Chưa thuộc:</span> 
+              <span className="value" style={{ fontWeight: '600' }}>{notLearned}</span>
             </div>
-            {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="label" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)' }}>Câu hỏi:</span> 
-              <span className="value" style={{ fontSize: 'clamp(11px, 2.5vw, 13px)', fontWeight: '600' }}>{deck.length === 0 ? 0 : index + 1}/{deck.length}</span>
-            </div> */}
           </div>
         </div>
 
         <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {totalAll === 0 ? (
             <div style={{ 
-              padding: 'clamp(12px, 3vw, 16px)', 
+              padding: '16px', 
               border: '1px solid #22305c', 
-              borderRadius: 'clamp(6px, 1.5vw, 8px)', 
-              marginBottom: 'clamp(8px, 2vw, 12px)', 
+              borderRadius: '8px', 
+              marginBottom: '12px', 
               background: 'rgba(255,255,255,0.02)',
-              fontSize: 'clamp(13px, 3vw, 15px)'
+              fontSize: '15px'
             }}>
               Không có từ vựng nào để kiểm tra.
             </div>
           ) : deck.length === 0 ? (
             <div style={{ 
-              padding: 'clamp(12px, 3vw, 16px)', 
+              padding: '16px', 
               border: '1px solid #22305c', 
-              borderRadius: 'clamp(6px, 1.5vw, 8px)', 
-              marginBottom: 'clamp(8px, 2vw, 12px)', 
+              borderRadius: '8px', 
+              marginBottom: '12px', 
               background: 'rgba(255,255,255,0.02)',
-              fontSize: 'clamp(13px, 3vw, 15px)'
+              fontSize: '15px'
             }}>
               Bạn đã hoàn thành tất cả từ cần ôn. 🎉
             </div>
@@ -253,10 +258,10 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
             <div
               className="card check-modal-card"
               style={{
-                padding: 'clamp(12px, 3vw, 16px)',
+                padding: '16px',
                 border: '1px solid #ddd',
-                borderRadius: 'clamp(6px, 1.5vw, 8px)',
-                marginBottom: 'clamp(8px, 2vw, 12px)',
+                borderRadius: '8px',
+                marginBottom: '12px',
                 background: showResult ? (isCorrect ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)') : 'transparent',
                 position: 'relative',
                 flex: '1 1 auto',
@@ -267,17 +272,17 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               }}
             >
               {/* Question section */}
-              <div style={{ marginBottom: 'clamp(12px, 3vw, 16px)' }}>
-                <div style={{ marginBottom: 'clamp(6px, 1.5vw, 8px)' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: '8px' }}>
                   <span className="label" style={{ 
-                    fontSize: 'clamp(12px, 3vw, 14px)', 
+                    fontSize: '14px', 
                     fontWeight: '600',
                     display: 'block',
-                    marginBottom: 'clamp(2px, 0.5vw, 4px)'
+                    marginBottom: '4px'
                   }}>Tiếng Việt:</span>
                   <div style={{ 
-                    fontSize: 'clamp(14px, 3.5vw, 16px)', 
-                    marginTop: 'clamp(2px, 0.5vw, 4px)', 
+                    fontSize: '16px', 
+                    marginTop: '4px', 
                     whiteSpace: 'pre-wrap',
                     lineHeight: '1.4',
                     wordBreak: 'break-word'
@@ -287,14 +292,14 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                 </div>
                 <div>
                   <span className="label" style={{ 
-                    fontSize: 'clamp(12px, 3vw, 14px)', 
+                    fontSize: '14px', 
                     fontWeight: '600',
                     display: 'block',
-                    marginBottom: 'clamp(2px, 0.5vw, 4px)'
+                    marginBottom: '4px'
                   }}>Tiếng Anh:</span>
                   <div style={{ 
-                    fontSize: 'clamp(14px, 3.5vw, 16px)', 
-                    marginTop: 'clamp(2px, 0.5vw, 4px)', 
+                    fontSize: '16px', 
+                    marginTop: '4px', 
                     whiteSpace: 'pre-wrap',
                     lineHeight: '1.4',
                     wordBreak: 'break-word'
@@ -305,11 +310,11 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               </div>
 
               {/* Input section */}
-              <div style={{ marginBottom: 'clamp(12px, 3vw, 16px)' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <label style={{ 
                   display: 'block', 
-                  marginBottom: 'clamp(6px, 1.5vw, 8px)', 
-                  fontSize: 'clamp(12px, 3vw, 14px)', 
+                  marginBottom: '8px', 
+                  fontSize: '14px', 
                   fontWeight: '600' 
                 }}>
                   Nhập tiếng Hàn:
@@ -322,10 +327,10 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                   placeholder="Nhập từ tiếng Hàn..."
                   style={{
                     width: '100%',
-                    padding: 'clamp(8px, 2vw, 12px)',
+                    padding: '12px',
                     border: '1px solid #ddd',
-                    borderRadius: 'clamp(4px, 1vw, 6px)',
-                    fontSize: 'clamp(14px, 3.5vw, 16px)',
+                    borderRadius: '6px',
+                    fontSize: '16px',
                     background: showResult ? (isCorrect ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)') : 'white',
                     boxSizing: 'border-box'
                   }}
@@ -337,29 +342,29 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               {/* Result section */}
               {showResult && (
                 <div style={{ 
-                  marginBottom: 'clamp(12px, 3vw, 16px)', 
-                  padding: 'clamp(8px, 2vw, 12px)', 
-                  borderRadius: 'clamp(4px, 1vw, 6px)',
+                  marginBottom: '16px', 
+                  padding: '12px', 
+                  borderRadius: '6px',
                   background: isCorrect ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)',
                   border: `1px solid ${isCorrect ? '#4CAF50' : '#f44336'}`
                 }}>
                   <div style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
-                    marginBottom: 'clamp(6px, 1.5vw, 8px)',
+                    marginBottom: '8px',
                     flexWrap: 'wrap'
                   }}>
                     <span style={{ 
-                      fontSize: 'clamp(16px, 4vw, 18px)', 
+                      fontSize: '18px', 
                       fontWeight: 'bold',
                       color: isCorrect ? '#4CAF50' : '#f44336',
-                      marginRight: 'clamp(6px, 1.5vw, 8px)',
+                      marginRight: '8px',
                       flexShrink: 0
                     }}>
                       {isCorrect ? '✓' : '✗'}
                     </span>
                     <span style={{ 
-                      fontSize: 'clamp(14px, 3.5vw, 16px)', 
+                      fontSize: '16px', 
                       fontWeight: '600',
                       color: isCorrect ? '#4CAF50' : '#f44336',
                       lineHeight: '1.2'
@@ -368,16 +373,16 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                     </span>
                   </div>
                   
-                  <div style={{ marginBottom: 'clamp(6px, 1.5vw, 8px)' }}>
+                  <div style={{ marginBottom: '8px' }}>
                     <span className="label" style={{ 
-                      fontSize: 'clamp(12px, 3vw, 14px)', 
+                      fontSize: '14px', 
                       fontWeight: '600',
                       display: 'block',
-                      marginBottom: 'clamp(2px, 0.5vw, 4px)'
+                      marginBottom: '4px'
                     }}>Đáp án đúng:</span>
                     <div style={{ 
-                      fontSize: 'clamp(14px, 3.5vw, 16px)', 
-                      marginTop: 'clamp(2px, 0.5vw, 4px)', 
+                      fontSize: '16px', 
+                      marginTop: '4px', 
                       whiteSpace: 'pre-wrap', 
                       fontWeight: '600',
                       lineHeight: '1.4',
@@ -388,16 +393,16 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                   </div>
 
                   {current.description && (
-                    <div style={{ marginBottom: 'clamp(6px, 1.5vw, 8px)' }}>
+                    <div style={{ marginBottom: '8px' }}>
                       <span className="label" style={{ 
-                        fontSize: 'clamp(12px, 3vw, 14px)', 
+                        fontSize: '14px', 
                         fontWeight: '600',
                         display: 'block',
-                        marginBottom: 'clamp(2px, 0.5vw, 4px)'
+                        marginBottom: '4px'
                       }}>Mô tả:</span>
                       <div style={{ 
-                        fontSize: 'clamp(12px, 3vw, 14px)', 
-                        marginTop: 'clamp(2px, 0.5vw, 4px)', 
+                        fontSize: '14px', 
+                        marginTop: '4px', 
                         whiteSpace: 'pre-wrap',
                         lineHeight: '1.4',
                         wordBreak: 'break-word'
@@ -408,22 +413,22 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                   )}
 
                   {(current.example1_ko || current.example1_vi || current.example1_en) && (
-                    <div style={{ marginBottom: 'clamp(6px, 1.5vw, 8px)' }}>
+                    <div style={{ marginBottom: '8px' }}>
                       <span className="label" style={{ 
-                        fontSize: 'clamp(12px, 3vw, 14px)', 
+                        fontSize: '14px', 
                         fontWeight: '600',
                         display: 'block',
-                        marginBottom: 'clamp(2px, 0.5vw, 4px)'
+                        marginBottom: '4px'
                       }}>Ví dụ 1:</span>
                       <div style={{ 
-                        fontSize: 'clamp(12px, 3vw, 14px)', 
-                        marginTop: 'clamp(2px, 0.5vw, 4px)',
+                        fontSize: '14px', 
+                        marginTop: '4px',
                         lineHeight: '1.4'
                       }}>
-                        <div style={{ marginBottom: 'clamp(2px, 0.5vw, 4px)' }}>
+                        <div style={{ marginBottom: '4px' }}>
                           <strong>KO:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example1_ko)}</span>
                         </div>
-                        <div style={{ marginBottom: 'clamp(2px, 0.5vw, 4px)' }}>
+                        <div style={{ marginBottom: '4px' }}>
                           <strong>VI:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example1_vi)}</span>
                         </div>
                         <div>
@@ -436,20 +441,20 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                   {(current.example2_ko || current.example2_vi || current.example2_en) && (
                     <div>
                       <span className="label" style={{ 
-                        fontSize: 'clamp(12px, 3vw, 14px)', 
+                        fontSize: '14px', 
                         fontWeight: '600',
                         display: 'block',
-                        marginBottom: 'clamp(2px, 0.5vw, 4px)'
+                        marginBottom: '4px'
                       }}>Ví dụ 2:</span>
                       <div style={{ 
-                        fontSize: 'clamp(12px, 3vw, 14px)', 
-                        marginTop: 'clamp(2px, 0.5vw, 4px)',
+                        fontSize: '14px', 
+                        marginTop: '4px',
                         lineHeight: '1.4'
                       }}>
-                        <div style={{ marginBottom: 'clamp(2px, 0.5vw, 4px)' }}>
+                        <div style={{ marginBottom: '4px' }}>
                           <strong>KO:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example2_ko)}</span>
                         </div>
-                        <div style={{ marginBottom: 'clamp(2px, 0.5vw, 4px)' }}>
+                        <div style={{ marginBottom: '4px' }}>
                           <strong>VI:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example2_vi)}</span>
                         </div>
                         <div>
@@ -465,17 +470,17 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               {current && learnedIds.has(current.id) && (
                 <div style={{ 
                   position: 'absolute', 
-                  top: 'clamp(6px, 1.5vw, 8px)', 
-                  right: 'clamp(6px, 1.5vw, 8px)', 
+                  top: '8px', 
+                  right: '8px', 
                   background: '#4CAF50', 
                   color: 'white', 
                   borderRadius: '50%', 
-                  width: 'clamp(20px, 5vw, 24px)', 
-                  height: 'clamp(20px, 5vw, 24px)', 
+                  width: '24px', 
+                  height: '24px', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center', 
-                  fontSize: 'clamp(10px, 2.5vw, 12px)', 
+                  fontSize: '12px', 
                   fontWeight: 'bold',
                   flexShrink: 0
                 }}>
@@ -489,15 +494,15 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
         <div style={{ 
           flex: '0 0 auto', 
           display: 'flex', 
-          gap: 'clamp(4px, 1vw, 6px)', 
+          gap: '6px', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
-          marginTop: 'clamp(8px, 2vw, 12px)', 
+          marginTop: '12px', 
           flexWrap: 'wrap'
         }}>
           <div style={{ 
             display: 'flex', 
-            gap: 'clamp(4px, 1vw, 6px)', 
+            gap: '6px', 
             flexWrap: 'wrap',
             flex: '1 1 auto',
             minWidth: 0
@@ -506,11 +511,11 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               className="btn" 
               onClick={goPrev}
               style={{ 
-                padding: 'clamp(6px, 1.5vw, 10px)', 
-                fontSize: 'clamp(11px, 2.5vw, 14px)',
+                padding: '10px', 
+                fontSize: '14px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 'clamp(2px, 0.5vw, 4px)',
+                gap: '4px',
                 minWidth: 'auto',
                 flex: '0 0 auto'
               }}
@@ -522,11 +527,11 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
               className="btn" 
               onClick={goNext}
               style={{ 
-                padding: 'clamp(6px, 1.5vw, 10px)', 
-                fontSize: 'clamp(11px, 2.5vw, 14px)',
+                padding: '10px', 
+                fontSize: '14px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 'clamp(2px, 0.5vw, 4px)',
+                gap: '4px',
                 minWidth: 'auto',
                 flex: '0 0 auto'
               }}
@@ -537,7 +542,7 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
           </div>
           <div style={{ 
             display: 'flex', 
-            gap: 'clamp(4px, 1vw, 6px)', 
+            gap: '6px', 
             flexWrap: 'wrap', 
             justifyContent: 'flex-end',
             flex: '1 1 auto',
@@ -548,8 +553,8 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                 className="btn" 
                 onClick={checkAnswer}
                 style={{ 
-                  padding: 'clamp(6px, 1.5vw, 10px)', 
-                  fontSize: 'clamp(11px, 2.5vw, 14px)',
+                  padding: '10px', 
+                  fontSize: '14px',
                   minWidth: 'auto',
                   flex: '0 0 auto'
                 }}
@@ -562,8 +567,8 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                 className="btn" 
                 onClick={nextQuestion}
                 style={{ 
-                  padding: 'clamp(6px, 1.5vw, 10px)', 
-                  fontSize: 'clamp(11px, 2.5vw, 14px)',
+                  padding: '10px', 
+                  fontSize: '14px',
                   minWidth: 'auto',
                   flex: '0 0 auto'
                 }}
@@ -572,21 +577,10 @@ export function CheckModal({ items, onClose, storageKey = 'korean-study:check:ge
                 Tiếp theo
               </button>
             )}
-            <button 
-              className="btn" 
-              onClick={onClose}
-              style={{ 
-                padding: 'clamp(6px, 1.5vw, 10px)', 
-                fontSize: 'clamp(11px, 2.5vw, 14px)',
-                minWidth: 'auto',
-                flex: '0 0 auto'
-              }}
-            >
-              Đóng
-            </button>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

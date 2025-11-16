@@ -9,11 +9,24 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; }
-body {
-  margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+html, body, #root { 
+  height: 100%;
+  min-height: 100vh;
+}
+html {
   background: linear-gradient(180deg, #0b1020, #0f1430);
+  background-attachment: fixed;
+}
+body {
+  margin: 0; 
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+  background: linear-gradient(180deg, #0b1020, #0f1430);
+  background-attachment: fixed;
   color: var(--text);
+}
+#root {
+  background: linear-gradient(180deg, #0b1020, #0f1430);
+  background-attachment: fixed;
 }
 
 .container { min-height: 100%; display: grid; grid-template-rows: auto 1fr auto; }
