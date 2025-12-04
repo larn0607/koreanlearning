@@ -7,6 +7,9 @@ import { ListPage } from './pages/ListPage.tsx';
 import { CategoryPage } from './pages/CategoryPage';
 import { NotesCategoryPage } from './pages/NotesCategoryPage';
 import { NotesListPage } from './pages/NotesListPage';
+import { SentenceCategoryPage } from './pages/SentenceCategoryPage';
+import { SentenceListPage } from './pages/SentenceListPage';
+import { SentenceCheckPage } from './pages/SentenceCheckPage';
 import { CheckPage } from './pages/CheckPage';
 import './styles.css';
 
@@ -25,7 +28,11 @@ const router = createBrowserRouter([
       { path: 'grammar/check', element: <CheckPage /> },
       { path: 'grammar/:cardId/check', element: <CheckPage /> },
       { path: 'notes', element: <NotesCategoryPage /> },
-      { path: 'notes/:cardId', element: <NotesListPage /> }
+      { path: 'notes/:cardId', element: <NotesListPage /> },
+      { path: 'sentences', element: <SentenceCategoryPage /> },
+      { path: 'sentences/:cardId', element: <SentenceListPage /> },
+      { path: 'sentences/check', element: <SentenceCheckPage /> },
+      { path: 'sentences/:cardId/check', element: <SentenceCheckPage /> }
     ]
   }
 ]);

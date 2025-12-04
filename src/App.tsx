@@ -9,6 +9,7 @@ export function App() {
           <NavLink to="/vocab" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Từ vựng</NavLink>
           <NavLink to="/grammar" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Ngữ pháp</NavLink>
           <NavLink to="/notes" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Note</NavLink>
+          <NavLink to="/sentences" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Câu</NavLink>
         </nav>
       </header>
       <main className="main">

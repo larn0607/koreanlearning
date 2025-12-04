@@ -19,4 +19,12 @@ export type NoteItem = {
   example: string;
 };
 
+export type SentenceItem = {
+  id: string;
+  sentence: string;
+  vietnamese: string;
+  vocabulary: string; // Format: word|category|hanviet\nword2|category2|hanviet2
+  grammar: string; // Format: analysis\n---\nexample1\nexample2
+};
+
 

@@ -15,6 +15,10 @@ export function Home() {
         <h2>📝 Note</h2>
         <p>Ghi chú học tập: tiêu đề, tóm tắt và ví dụ.</p>
       </Link>
+      <Link to="/sentences" className="card">
+        <h2>💬 Câu</h2>
+        <p>Học câu tiếng Hàn với từ vựng chính và phân tích ngữ pháp.</p>
+      </Link>
     </div>
   );
 }

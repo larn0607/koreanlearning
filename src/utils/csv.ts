@@ -1,5 +1,5 @@
 import Papa, { type ParseResult } from 'papaparse';
-import type { StudyItem, NoteItem } from '../types';
+import type { StudyItem, NoteItem, SentenceItem } from '../types';
 
 export function parseCSV(file: File): Promise<StudyItem[]> {
   return new Promise((resolve, reject) => {
@@ -148,6 +148,48 @@ export function areItemsDifferent<T extends { id: string }>(current: T[], import
   }
   
   return false;
+}
+
+export function parseSentencesCSV(file: File): Promise<SentenceItem[]> {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results: ParseResult<Record<string, string>>) => {
+        const rows = results.data as Array<Record<string, string>>;
+        const items: SentenceItem[] = rows.map((row, index) => ({
+          id: row.id || `${Date.now()}-${index}`,
+          sentence: row.sentence || row.Sentence || '',
+          vietnamese: row.vietnamese || row.Vietnamese || '',
+          vocabulary: row.vocabulary || row.Vocabulary || '',
+          grammar: row.grammar || row.Grammar || ''
+        })).filter(i => i.sentence);
+        resolve(items);
+      },
+      error: (error: unknown) => reject(error)
+    });
+  });
+}
+
+export function exportSentencesToCSV(items: SentenceItem[], filename = 'sentences.csv') {
+  const fields = ['id', 'sentence', 'vietnamese', 'vocabulary', 'grammar'];
+  const csvAllQuoted = Papa.unparse(items, {
+    columns: fields,
+    quotes: true,
+    header: true
+  } as any);
+  const lines = csvAllQuoted.split('\n');
+  if (lines.length > 0) {
+    lines[0] = fields.join(',');
+  }
+  const csv = lines.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 
