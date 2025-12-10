@@ -113,6 +113,7 @@ export function ListPage({ category }: ListPageProps) {
         <label className="btn" onClick={() => exportToCSV(items, `${category}_${cardId}.csv`)}>Export CSV</label>
         <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
         <label className="btn" onClick={() => setShowFlash(true)}>Flashcard</label>
+        <label className="btn" onClick={() => navigate(cardId ? `/${category}/${cardId}/wrong` : `/${category}/wrong`)}>Từ đã sai</label>
         <label className="btn" onClick={() => navigate(cardId ? `/${category}/${cardId}/check` : `/${category}/check`)}>Kiểm tra</label>
       </div>
 

@@ -30,15 +30,29 @@ export function CheckPage() {
   });
   const [shuffledDeck, setShuffledDeck] = useState<StudyItem[]>([]);
   const [index, setIndex] = useState(0);
-  const storageKey = `korean-study:check:${cardId ? `${category}:${cardId}` : category}`;
+  
+  // Check if we're in wrong-only mode
+  const wrongOnlyKey = `korean-study:check-wrong-only:${cardId ? `${category}:${cardId}` : category}`;
+  const isWrongOnlyMode = localStorage.getItem(wrongOnlyKey) === 'true';
+  
+  // Use separate storage key for wrong-only mode
+  const storageKey = isWrongOnlyMode 
+    ? `korean-study:check-wrong:${cardId ? `${category}:${cardId}` : category}`
+    : `korean-study:check:${cardId ? `${category}:${cardId}` : category}`;
+  
   const [learnedIds, setLearnedIds] = useState<Set<string>>(() => {
+    // Calculate storage key inside initializer to ensure it's correct
+    const wrongOnlyFlag = localStorage.getItem(`korean-study:check-wrong-only:${cardId ? `${category}:${cardId}` : category}`) === 'true';
+    const key = wrongOnlyFlag 
+      ? `korean-study:check-wrong:${cardId ? `${category}:${cardId}` : category}`
+      : `korean-study:check:${cardId ? `${category}:${cardId}` : category}`;
     try {
-      const raw = localStorage.getItem(storageKey);
+      const raw = localStorage.getItem(key);
       if (!raw) return new Set();
       const parsed = JSON.parse(raw) as { ids: string[]; savedAt: number };
       const EIGHT_HOURS_MS = 8 * 60 * 60 * 1000;
       if (!parsed || !Array.isArray(parsed.ids) || !parsed.savedAt || Date.now() - parsed.savedAt > EIGHT_HOURS_MS) {
-        localStorage.removeItem(storageKey);
+        localStorage.removeItem(key);
         return new Set();
       }
       return new Set(parsed.ids);
@@ -49,17 +63,39 @@ export function CheckPage() {
   const [userInput, setUserInput] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  
+  // Load wrong IDs if in wrong-only mode
+  const wrongIds = useMemo(() => {
+    if (!isWrongOnlyMode || !category) return new Set<string>();
+    const wrongKey = `korean-study:wrong:${cardId ? `${category}:${cardId}` : category}`;
+    try {
+      const wrongRaw = localStorage.getItem(wrongKey);
+      if (!wrongRaw) return new Set();
+      return new Set(JSON.parse(wrongRaw) as string[]);
+    } catch {
+      return new Set();
+    }
+  }, [isWrongOnlyMode, category, cardId]);
 
   // Initialize shuffled deck when items change
   useEffect(() => {
-    const deckAll = items.filter(i => i.korean || i.vietnamese || i.english);
+    let deckAll = items.filter(i => i.korean || i.vietnamese || i.english);
+    
+    // If in wrong-only mode, filter to only wrong items
+    if (isWrongOnlyMode) {
+      deckAll = deckAll.filter(i => wrongIds.has(i.id));
+    }
+    
     if (deckAll.length > 0) {
       // Shuffle the deck
       const shuffled = [...deckAll].sort(() => Math.random() - 0.5);
       setShuffledDeck(shuffled);
       setIndex(0);
+    } else {
+      setShuffledDeck([]);
+      setIndex(0);
     }
-  }, [items]);
+  }, [items, isWrongOnlyMode, wrongIds]);
 
   const deck = useMemo(() => shuffledDeck.filter(i => !learnedIds.has(i.id)), [shuffledDeck, learnedIds]);
   const totalAll = shuffledDeck.length;
@@ -149,6 +185,7 @@ export function CheckPage() {
           } catch { }
           return next;
         });
+        // Don't remove from wrong items - keep history of wrong answers
       }
       // Advance to next remaining (deck will shrink on render)
       goNext();
@@ -159,6 +196,15 @@ export function CheckPage() {
         goNext();
         return;
       }
+      // Save wrong item flag to localStorage
+      const wrongKey = `korean-study:wrong:${cardId ? `${category}:${cardId}` : category}`;
+      try {
+        const wrongRaw = localStorage.getItem(wrongKey);
+        const wrongIds = wrongRaw ? new Set(JSON.parse(wrongRaw) as string[]) : new Set<string>();
+        wrongIds.add(curId);
+        localStorage.setItem(wrongKey, JSON.stringify(Array.from(wrongIds)));
+      } catch { }
+      
       setShuffledDeck(prev => {
         const newDeck = [...prev];
         const idxInShuffled = newDeck.findIndex(i => i.id === curId);
@@ -196,11 +242,32 @@ export function CheckPage() {
     <div className="list-page">
       <div className="toolbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button className="btn" onClick={() => navigate(cardId ? `/${category}/${cardId}` : `/${category}`)}>
+          <button className="btn" onClick={() => {
+            // Clear wrong-only mode flag when going back
+            if (isWrongOnlyMode) {
+              localStorage.removeItem(wrongOnlyKey);
+            }
+            navigate(cardId ? `/${category}/${cardId}` : `/${category}`);
+          }}>
             ← Quay lại
           </button>
           <span className={`badge ${category}`}>{category === 'vocab' ? 'Từ vựng' : 'Ngữ pháp'}</span>
-          <div style={{ fontWeight: 600, fontSize: 18 }}>Kiểm tra từ vựng</div>
+          <div style={{ fontWeight: 600, fontSize: 18 }}>
+            {isWrongOnlyMode ? 'Kiểm tra từ đã sai' : 'Kiểm tra từ vựng'}
+          </div>
+          {isWrongOnlyMode && (
+            <span style={{ 
+              fontSize: '14px', 
+              color: '#ef4444', 
+              fontWeight: 600,
+              padding: '4px 12px',
+              background: 'rgba(239, 68, 68, 0.1)',
+              borderRadius: '6px',
+              marginLeft: '8px'
+            }}>
+              Chế độ: Từ đã sai
+            </span>
+          )}
         </div>
       </div>
 
@@ -252,7 +319,7 @@ export function CheckPage() {
               background: 'rgba(255,255,255,0.02)',
               fontSize: '15px'
             }}>
-              Bạn đã hoàn thành tất cả từ cần ôn. 🎉
+              {isWrongOnlyMode ? 'Bạn đã hoàn thành tất cả từ đã sai. 🎉' : 'Bạn đã hoàn thành tất cả từ cần ôn. 🎉'}
             </div>
           ) : (
             <div

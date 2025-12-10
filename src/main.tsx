@@ -11,6 +11,7 @@ import { SentenceCategoryPage } from './pages/SentenceCategoryPage';
 import { SentenceListPage } from './pages/SentenceListPage';
 import { SentenceCheckPage } from './pages/SentenceCheckPage';
 import { CheckPage } from './pages/CheckPage';
+import { WrongItemsPage } from './pages/WrongItemsPage';
 import './styles.css';
 
 const router = createBrowserRouter([
@@ -23,16 +24,22 @@ const router = createBrowserRouter([
       { path: 'vocab/:cardId', element: <ListPage category="vocab" /> },
       { path: 'vocab/check', element: <CheckPage /> },
       { path: 'vocab/:cardId/check', element: <CheckPage /> },
+      { path: 'vocab/wrong', element: <WrongItemsPage /> },
+      { path: 'vocab/:cardId/wrong', element: <WrongItemsPage /> },
       { path: 'grammar', element: <CategoryPage category="grammar" /> },
       { path: 'grammar/:cardId', element: <ListPage category="grammar" /> },
       { path: 'grammar/check', element: <CheckPage /> },
       { path: 'grammar/:cardId/check', element: <CheckPage /> },
+      { path: 'grammar/wrong', element: <WrongItemsPage /> },
+      { path: 'grammar/:cardId/wrong', element: <WrongItemsPage /> },
       { path: 'notes', element: <NotesCategoryPage /> },
       { path: 'notes/:cardId', element: <NotesListPage /> },
       { path: 'sentences', element: <SentenceCategoryPage /> },
       { path: 'sentences/:cardId', element: <SentenceListPage /> },
       { path: 'sentences/check', element: <SentenceCheckPage /> },
-      { path: 'sentences/:cardId/check', element: <SentenceCheckPage /> }
+      { path: 'sentences/:cardId/check', element: <SentenceCheckPage /> },
+      { path: 'sentences/wrong', element: <WrongItemsPage /> },
+      { path: 'sentences/:cardId/wrong', element: <WrongItemsPage /> }
     ]
   }
 ]);

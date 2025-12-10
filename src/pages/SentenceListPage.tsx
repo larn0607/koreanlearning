@@ -111,6 +111,7 @@ export function SentenceListPage() {
         </label>
         <label className="btn" onClick={() => exportSentencesToCSV(items, `sentences_${cardId || 'all'}.csv`)}>Export CSV</label>
         <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
+        <label className="btn" onClick={() => navigate(cardId ? `/sentences/${cardId}/wrong` : '/sentences/wrong')}>Từ đã sai</label>
         <label className="btn" onClick={() => navigate(cardId ? `/sentences/${cardId}/check` : '/sentences/check')}>Kiểm tra</label>
       </div>
 

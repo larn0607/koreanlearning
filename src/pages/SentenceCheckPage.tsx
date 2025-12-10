@@ -30,8 +30,10 @@ function saveInputHistory(sentenceId: string, input: string, cardId?: string) {
 }
 
 // Load correct sentences (sentences that were answered correctly)
-function loadCorrectSentences(cardId?: string): Set<string> {
-  const correctKey = `korean-study:sentence-correct:${cardId ? `${cardId}:` : ''}all`;
+function loadCorrectSentences(cardId?: string, isWrongOnlyMode?: boolean): Set<string> {
+  const correctKey = isWrongOnlyMode
+    ? `korean-study:sentence-correct-wrong:${cardId ? `${cardId}:` : ''}all`
+    : `korean-study:sentence-correct:${cardId ? `${cardId}:` : ''}all`;
   const raw = localStorage.getItem(correctKey);
   if (!raw) return new Set();
   try {
@@ -48,9 +50,11 @@ function loadCorrectSentences(cardId?: string): Set<string> {
 }
 
 // Save correct sentence ID
-function saveCorrectSentence(sentenceId: string, cardId?: string) {
-  const correctKey = `korean-study:sentence-correct:${cardId ? `${cardId}:` : ''}all`;
-  const current = loadCorrectSentences(cardId);
+function saveCorrectSentence(sentenceId: string, cardId?: string, isWrongOnlyMode?: boolean) {
+  const correctKey = isWrongOnlyMode
+    ? `korean-study:sentence-correct-wrong:${cardId ? `${cardId}:` : ''}all`
+    : `korean-study:sentence-correct:${cardId ? `${cardId}:` : ''}all`;
+  const current = loadCorrectSentences(cardId, isWrongOnlyMode);
   current.add(sentenceId);
   localStorage.setItem(correctKey, JSON.stringify({
     ids: Array.from(current),
@@ -120,18 +124,41 @@ export function SentenceCheckPage() {
   const { cardId } = useParams();
   const navigate = useNavigate();
   
+  // Check if we're in wrong-only mode (must be before useState that uses it)
+  const wrongOnlyKey = `korean-study:check-wrong-only:sentences${cardId ? `:${cardId}` : ''}`;
+  const isWrongOnlyMode = localStorage.getItem(wrongOnlyKey) === 'true';
+  
   const [items] = useState<SentenceItem[]>(() => loadSentences(cardId));
-  const [correctIds, setCorrectIds] = useState<Set<string>>(() => loadCorrectSentences(cardId));
+  const [correctIds, setCorrectIds] = useState<Set<string>>(() => loadCorrectSentences(cardId, isWrongOnlyMode));
   const [shuffledDeck, setShuffledDeck] = useState<SentenceItem[]>([]);
   const [index, setIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [comparisonResult, setComparisonResult] = useState<Array<{ word: string; isCorrect: boolean }>>([]);
   const [previousWrongInput, setPreviousWrongInput] = useState<string>('');
+  
+  // Load wrong IDs if in wrong-only mode
+  const wrongIds = useMemo(() => {
+    if (!isWrongOnlyMode) return new Set<string>();
+    const wrongKey = `korean-study:wrong:sentences${cardId ? `:${cardId}` : ''}`;
+    try {
+      const wrongRaw = localStorage.getItem(wrongKey);
+      if (!wrongRaw) return new Set();
+      return new Set(JSON.parse(wrongRaw) as string[]);
+    } catch {
+      return new Set();
+    }
+  }, [isWrongOnlyMode, cardId]);
 
   // Initialize shuffled deck when items change, filter out correct sentences
   useEffect(() => {
-    const deckAll = items.filter(i => i.sentence && !correctIds.has(i.id));
+    let deckAll = items.filter(i => i.sentence && !correctIds.has(i.id));
+    
+    // If in wrong-only mode, filter to only wrong sentences
+    if (isWrongOnlyMode) {
+      deckAll = deckAll.filter(i => wrongIds.has(i.id));
+    }
+    
     if (deckAll.length > 0) {
       const shuffled = [...deckAll].sort(() => Math.random() - 0.5);
       setShuffledDeck(shuffled);
@@ -140,7 +167,7 @@ export function SentenceCheckPage() {
       setShuffledDeck([]);
       setIndex(0);
     }
-  }, [items, correctIds]);
+  }, [items, correctIds, isWrongOnlyMode, wrongIds]);
 
   const deck = useMemo(() => shuffledDeck.filter(i => !correctIds.has(i.id)), [shuffledDeck, correctIds]);
   const current = deck[index];
@@ -228,12 +255,13 @@ export function SentenceCheckPage() {
       const newCorrectIds = new Set(correctIds);
       newCorrectIds.add(current.id);
       setCorrectIds(newCorrectIds);
-      saveCorrectSentence(current.id, cardId);
+      saveCorrectSentence(current.id, cardId, isWrongOnlyMode);
       
       // Clear wrong input history when answer is correct
       const historyKey = `korean-study:sentence-input-history:${cardId ? `${cardId}:` : ''}${current.id}`;
       localStorage.removeItem(historyKey);
       setPreviousWrongInput('');
+      // Don't remove from wrong items - keep history of wrong answers
       
       // Auto move to next after 1 second
       setTimeout(() => {
@@ -251,6 +279,14 @@ export function SentenceCheckPage() {
     } else {
       // Save wrong input as history
       saveInputHistory(current.id, userInput, cardId);
+      // Save wrong sentence flag to localStorage
+      const wrongKey = `korean-study:wrong:sentences${cardId ? `:${cardId}` : ''}`;
+      try {
+        const wrongRaw = localStorage.getItem(wrongKey);
+        const wrongIds = wrongRaw ? new Set(JSON.parse(wrongRaw) as string[]) : new Set<string>();
+        wrongIds.add(current.id);
+        localStorage.setItem(wrongKey, JSON.stringify(Array.from(wrongIds)));
+      } catch { }
     }
   }
 
@@ -286,11 +322,18 @@ export function SentenceCheckPage() {
       return (
         <div className="list-page">
           <div className="toolbar">
-            <button className="btn" onClick={() => navigate(cardId ? `/sentences/${cardId}` : '/sentences')}>
+            <button className="btn" onClick={() => {
+              if (isWrongOnlyMode) {
+                localStorage.removeItem(wrongOnlyKey);
+              }
+              navigate(cardId ? `/sentences/${cardId}` : '/sentences');
+            }}>
               ← Quay lại
             </button>
           </div>
-          <div className="empty">Chưa có dữ liệu để kiểm tra.</div>
+          <div className="empty">
+            {isWrongOnlyMode ? 'Chưa có câu nào đã nhập sai để kiểm tra.' : 'Chưa có dữ liệu để kiểm tra.'}
+          </div>
         </div>
       );
     }
@@ -299,7 +342,12 @@ export function SentenceCheckPage() {
     return (
       <div className="list-page">
         <div className="toolbar">
-          <button className="btn" onClick={() => navigate(cardId ? `/sentences/${cardId}` : '/sentences')}>
+          <button className="btn" onClick={() => {
+            if (isWrongOnlyMode) {
+              localStorage.removeItem(wrongOnlyKey);
+            }
+            navigate(cardId ? `/sentences/${cardId}` : '/sentences');
+          }}>
             ← Quay lại
           </button>
           <div className="spacer" />
@@ -324,7 +372,7 @@ export function SentenceCheckPage() {
             🎉 Hoàn thành!
           </div>
           <div style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-            Bạn đã trả lời đúng tất cả các câu!
+            {isWrongOnlyMode ? 'Bạn đã trả lời đúng tất cả các câu đã sai!' : 'Bạn đã trả lời đúng tất cả các câu!'}
           </div>
           <div style={{ 
             padding: '16px', 
@@ -338,7 +386,9 @@ export function SentenceCheckPage() {
           </div>
           <button className="btn primary" onClick={() => {
             // Reset correct sentences
-            const correctKey = `korean-study:sentence-correct:${cardId ? `${cardId}:` : ''}all`;
+            const correctKey = isWrongOnlyMode
+              ? `korean-study:sentence-correct-wrong:${cardId ? `${cardId}:` : ''}all`
+              : `korean-study:sentence-correct:${cardId ? `${cardId}:` : ''}all`;
             localStorage.removeItem(correctKey);
             setCorrectIds(new Set());
             // Reload page
