@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import type { StudyItem, SentenceItem } from '../types';
-import { exportToCSV, exportSentencesToCSV } from '../utils/csv';
+import { exportToCSV, exportSentencesToCSV, loadWrongIds } from '../utils/csv';
 import { ItemModal } from '../components/ItemModal';
 import { normalizeNewlines } from '../utils/text';
 
@@ -29,19 +29,6 @@ function loadSentences(cardId?: string): SentenceItem[] {
   }
 }
 
-function loadWrongIds(category: 'vocab' | 'grammar' | 'sentences', cardId?: string): Set<string> {
-  const wrongKey = category === 'sentences' 
-    ? `korean-study:wrong:sentences${cardId ? `:${cardId}` : ''}`
-    : `korean-study:wrong:${cardId ? `${category}:${cardId}` : category}`;
-  try {
-    const wrongRaw = localStorage.getItem(wrongKey);
-    if (!wrongRaw) return new Set();
-    return new Set(JSON.parse(wrongRaw) as string[]);
-  } catch {
-    return new Set();
-  }
-}
-
 export function WrongItemsPage() {
   const { cardId } = useParams();
   const navigate = useNavigate();
@@ -61,7 +48,8 @@ export function WrongItemsPage() {
   useEffect(() => {
     if (!category) return;
     
-    const ids = loadWrongIds(category, cardId);
+    const categoryKey = category === 'sentences' ? 'sentences' : category;
+    const ids = loadWrongIds(categoryKey, cardId);
     
     if (category === 'sentences') {
       const allSentences = loadSentences(cardId);

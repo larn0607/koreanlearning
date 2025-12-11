@@ -4,7 +4,7 @@ import { EditItemModal } from '../components/EditItemModal';
 import { FlashcardModal } from '../components/FlashcardModal';
 import type { StudyItem } from '../types';
 import { useParams, useNavigate } from 'react-router-dom';
-import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent, clearCheckStorage } from '../utils/csv';
+import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent, clearCheckStorage, clearWrongItemsStorage } from '../utils/csv';
 
 type ListPageProps = {
   category: 'vocab' | 'grammar';
@@ -68,10 +68,13 @@ export function ListPage({ category }: ListPageProps) {
         
         // Check if the merged data is different from current data
         if (areItemsDifferent(prev, mergedItems)) {
+          const categoryKey = cardId ? `${category}:${cardId}` : category;
           // Clear flashcard storage when data changes
-          clearFlashcardStorage(cardId ? `${category}:${cardId}` : category);
+          clearFlashcardStorage(categoryKey);
           // Clear check storage when data changes
-          clearCheckStorage(cardId ? `${category}:${cardId}` : category);
+          clearCheckStorage(categoryKey);
+          // Clear wrong items storage when data changes
+          clearWrongItemsStorage(categoryKey);
         }
         
         return mergedItems;
@@ -89,8 +92,10 @@ export function ListPage({ category }: ListPageProps) {
   function handleClearAll() {
     const confirmed = window.confirm('Bạn có chắc muốn xóa tất cả dữ liệu hiện tại?');
     if (!confirmed) return;
-    clearFlashcardStorage(cardId ? `${category}:${cardId}` : category);
-    clearCheckStorage(cardId ? `${category}:${cardId}` : category);
+    const categoryKey = cardId ? `${category}:${cardId}` : category;
+    clearFlashcardStorage(categoryKey);
+    clearCheckStorage(categoryKey);
+    clearWrongItemsStorage(categoryKey);
     setSelectedId(null);
     setEditing(null);
     setItems([]);
@@ -114,7 +119,12 @@ export function ListPage({ category }: ListPageProps) {
         <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
         <label className="btn" onClick={() => setShowFlash(true)}>Flashcard</label>
         <label className="btn" onClick={() => navigate(cardId ? `/${category}/${cardId}/wrong` : `/${category}/wrong`)}>Từ đã sai</label>
-        <label className="btn" onClick={() => navigate(cardId ? `/${category}/${cardId}/check` : `/${category}/check`)}>Kiểm tra</label>
+        <label className="btn" onClick={() => {
+          // Clear wrong-only mode flag when entering check from list page
+          const wrongOnlyKey = `korean-study:check-wrong-only:${cardId ? `${category}:${cardId}` : category}`;
+          localStorage.removeItem(wrongOnlyKey);
+          navigate(cardId ? `/${category}/${cardId}/check` : `/${category}/check`);
+        }}>Kiểm tra</label>
       </div>
 
       <div className="table">

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { SentenceItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
+import { loadWrongIds, saveWrongIds } from '../utils/csv';
 
 const STORAGE_KEY_PREFIX = 'korean-study:sentences';
 
@@ -38,8 +39,8 @@ function loadCorrectSentences(cardId?: string, isWrongOnlyMode?: boolean): Set<s
   if (!raw) return new Set();
   try {
     const parsed = JSON.parse(raw) as { ids: string[]; savedAt: number };
-    const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
-    if (!parsed || !Array.isArray(parsed.ids) || !parsed.savedAt || Date.now() - parsed.savedAt > SIX_HOURS_MS) {
+    const EIGHT_HOURS_MS = 8 * 60 * 60 * 1000;
+    if (!parsed || !Array.isArray(parsed.ids) || !parsed.savedAt || Date.now() - parsed.savedAt > EIGHT_HOURS_MS) {
       localStorage.removeItem(correctKey);
       return new Set();
     }
@@ -140,14 +141,7 @@ export function SentenceCheckPage() {
   // Load wrong IDs if in wrong-only mode
   const wrongIds = useMemo(() => {
     if (!isWrongOnlyMode) return new Set<string>();
-    const wrongKey = `korean-study:wrong:sentences${cardId ? `:${cardId}` : ''}`;
-    try {
-      const wrongRaw = localStorage.getItem(wrongKey);
-      if (!wrongRaw) return new Set();
-      return new Set(JSON.parse(wrongRaw) as string[]);
-    } catch {
-      return new Set();
-    }
+    return loadWrongIds('sentences', cardId);
   }, [isWrongOnlyMode, cardId]);
 
   // Initialize shuffled deck when items change, filter out correct sentences
@@ -280,13 +274,9 @@ export function SentenceCheckPage() {
       // Save wrong input as history
       saveInputHistory(current.id, userInput, cardId);
       // Save wrong sentence flag to localStorage
-      const wrongKey = `korean-study:wrong:sentences${cardId ? `:${cardId}` : ''}`;
-      try {
-        const wrongRaw = localStorage.getItem(wrongKey);
-        const wrongIds = wrongRaw ? new Set(JSON.parse(wrongRaw) as string[]) : new Set<string>();
-        wrongIds.add(current.id);
-        localStorage.setItem(wrongKey, JSON.stringify(Array.from(wrongIds)));
-      } catch { }
+      const currentWrongIds = loadWrongIds('sentences', cardId);
+      currentWrongIds.add(current.id);
+      saveWrongIds('sentences', currentWrongIds, cardId);
     }
   }
 

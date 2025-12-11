@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import type { StudyItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
+import { loadWrongIds, saveWrongIds } from '../utils/csv';
 
 const STORAGE_KEY_PREFIX = 'korean-study:';
 
@@ -67,14 +68,7 @@ export function CheckPage() {
   // Load wrong IDs if in wrong-only mode
   const wrongIds = useMemo(() => {
     if (!isWrongOnlyMode || !category) return new Set<string>();
-    const wrongKey = `korean-study:wrong:${cardId ? `${category}:${cardId}` : category}`;
-    try {
-      const wrongRaw = localStorage.getItem(wrongKey);
-      if (!wrongRaw) return new Set();
-      return new Set(JSON.parse(wrongRaw) as string[]);
-    } catch {
-      return new Set();
-    }
+    return loadWrongIds(category, cardId);
   }, [isWrongOnlyMode, category, cardId]);
 
   // Initialize shuffled deck when items change
@@ -192,18 +186,14 @@ export function CheckPage() {
     } else {
       // Requeue wrong item to end of the underlying shuffled deck
       const curId = current?.id;
-      if (!curId) {
+      if (!curId || !category) {
         goNext();
         return;
       }
       // Save wrong item flag to localStorage
-      const wrongKey = `korean-study:wrong:${cardId ? `${category}:${cardId}` : category}`;
-      try {
-        const wrongRaw = localStorage.getItem(wrongKey);
-        const wrongIds = wrongRaw ? new Set(JSON.parse(wrongRaw) as string[]) : new Set<string>();
-        wrongIds.add(curId);
-        localStorage.setItem(wrongKey, JSON.stringify(Array.from(wrongIds)));
-      } catch { }
+      const currentWrongIds = loadWrongIds(category, cardId);
+      currentWrongIds.add(curId);
+      saveWrongIds(category, currentWrongIds, cardId);
       
       setShuffledDeck(prev => {
         const newDeck = [...prev];

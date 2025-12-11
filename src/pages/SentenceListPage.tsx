@@ -112,7 +112,12 @@ export function SentenceListPage() {
         <label className="btn" onClick={() => exportSentencesToCSV(items, `sentences_${cardId || 'all'}.csv`)}>Export CSV</label>
         <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
         <label className="btn" onClick={() => navigate(cardId ? `/sentences/${cardId}/wrong` : '/sentences/wrong')}>Từ đã sai</label>
-        <label className="btn" onClick={() => navigate(cardId ? `/sentences/${cardId}/check` : '/sentences/check')}>Kiểm tra</label>
+        <label className="btn" onClick={() => {
+          // Clear wrong-only mode flag when entering check from list page
+          const wrongOnlyKey = `korean-study:check-wrong-only:sentences${cardId ? `:${cardId}` : ''}`;
+          localStorage.removeItem(wrongOnlyKey);
+          navigate(cardId ? `/sentences/${cardId}/check` : '/sentences/check');
+        }}>Kiểm tra</label>
       </div>
 
       <div className="table">

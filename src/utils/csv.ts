@@ -115,6 +115,72 @@ export function clearFlashcardStorage(category: string) {
 export function clearCheckStorage(category: string) {
   const storageKey = `korean-study:check:${category}`;
   localStorage.removeItem(storageKey);
+  // Also clear wrong-only check storage
+  const wrongCheckKey = `korean-study:check-wrong:${category}`;
+  localStorage.removeItem(wrongCheckKey);
+  // Clear wrong-only mode flag
+  const wrongOnlyFlagKey = `korean-study:check-wrong-only:${category}`;
+  localStorage.removeItem(wrongOnlyFlagKey);
+}
+
+// Utility function to clear wrong items storage for a category
+export function clearWrongItemsStorage(category: string) {
+  const wrongKey = `korean-study:wrong:${category}`;
+  localStorage.removeItem(wrongKey);
+}
+
+// Utility function to load wrong IDs with 8-hour expiration check
+export function loadWrongIds(category: string, cardId?: string): Set<string> {
+  const wrongKey = category.startsWith('sentences')
+    ? `korean-study:wrong:sentences${cardId ? `:${cardId}` : ''}`
+    : `korean-study:wrong:${cardId ? `${category}:${cardId}` : category}`;
+  try {
+    const wrongRaw = localStorage.getItem(wrongKey);
+    if (!wrongRaw) return new Set();
+    
+    // Try to parse as new format with timestamp
+    try {
+      const parsed = JSON.parse(wrongRaw) as { ids: string[]; savedAt: number } | string[];
+      
+      // Check if it's the new format (object with savedAt)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && 'savedAt' in parsed) {
+        const EIGHT_HOURS_MS = 8 * 60 * 60 * 1000;
+        if (!parsed.savedAt || Date.now() - parsed.savedAt > EIGHT_HOURS_MS) {
+          localStorage.removeItem(wrongKey);
+          return new Set();
+        }
+        return new Set(parsed.ids);
+      }
+      
+      // Old format (just array) - migrate to new format
+      if (Array.isArray(parsed)) {
+        const migrated = { ids: parsed, savedAt: Date.now() };
+        localStorage.setItem(wrongKey, JSON.stringify(migrated));
+        return new Set(parsed);
+      }
+    } catch {
+      // If parsing fails, try as old format
+      const parsed = JSON.parse(wrongRaw) as string[];
+      if (Array.isArray(parsed)) {
+        const migrated = { ids: parsed, savedAt: Date.now() };
+        localStorage.setItem(wrongKey, JSON.stringify(migrated));
+        return new Set(parsed);
+      }
+    }
+    
+    return new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+// Utility function to save wrong IDs with timestamp
+export function saveWrongIds(category: string, ids: Set<string>, cardId?: string) {
+  const wrongKey = category.startsWith('sentences')
+    ? `korean-study:wrong:sentences${cardId ? `:${cardId}` : ''}`
+    : `korean-study:wrong:${cardId ? `${category}:${cardId}` : category}`;
+  const data = { ids: Array.from(ids), savedAt: Date.now() };
+  localStorage.setItem(wrongKey, JSON.stringify(data));
 }
 
 // Utility function to check if two arrays of items are different
