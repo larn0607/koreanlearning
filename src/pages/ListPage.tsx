@@ -5,6 +5,7 @@ import { FlashcardModal } from '../components/FlashcardModal';
 import type { StudyItem } from '../types';
 import { useParams, useNavigate } from 'react-router-dom';
 import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent, clearCheckStorage, clearWrongItemsStorage } from '../utils/csv';
+import { speakKorean } from '../utils/speech';
 
 type ListPageProps = {
   category: 'vocab' | 'grammar';
@@ -128,7 +129,7 @@ export function ListPage({ category }: ListPageProps) {
       </div>
 
       <div className="table">
-        <div className="thead">
+          <div className="thead">
           <div>Tiếng Hàn</div>
           <div>Tiếng Việt</div>
           <div>Tiếng Anh</div>
@@ -137,8 +138,20 @@ export function ListPage({ category }: ListPageProps) {
         <div className="tbody">
           {filtered.map(item => (
             <div className="row" key={item.id} onClick={() => setSelectedId(item.id)} style={{ cursor: 'pointer' }}>
-              <div className="cell">
-                <div className="cell-input">{item.korean}</div>
+              <div className="cell" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="cell-input" style={{ flex: 1 }}>{item.korean}</div>
+                <button
+                  className="btn small"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    speakKorean(item.korean);
+                  }}
+                  title="Phát âm tiếng Hàn"
+                  style={{ flexShrink: 0, padding: '4px 8px' }}
+                >
+                  🔊
+                </button>
               </div>
               <div className="cell">
                 <div className="cell-input">{item.vietnamese}</div>

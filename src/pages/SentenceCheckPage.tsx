@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import type { SentenceItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
 import { loadWrongIds, saveWrongIds } from '../utils/csv';
+import { speakKorean } from '../utils/speech';
 
 const STORAGE_KEY_PREFIX = 'korean-study:sentences';
 
@@ -596,9 +597,23 @@ export function SentenceCheckPage() {
                       borderRadius: '8px',
                       border: '1px solid var(--border)',
                       fontSize: '16px',
-                      lineHeight: '1.6'
+                      lineHeight: '1.6',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8
                     }}>
-                      {current.sentence}
+                      <span style={{ flex: 1 }}>
+                        {current.sentence}
+                      </span>
+                      <button
+                        className="btn small"
+                        type="button"
+                        onClick={() => speakKorean(current.sentence)}
+                        title="Phát âm câu đúng"
+                        style={{ flexShrink: 0, padding: '4px 8px' }}
+                      >
+                        🔊
+                      </button>
                     </div>
                   </div>
 

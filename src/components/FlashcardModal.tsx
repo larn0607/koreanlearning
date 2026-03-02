@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { StudyItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
+import { speakKorean } from '../utils/speech';
 
 type FlashcardModalProps = {
   items: StudyItem[];
@@ -205,7 +206,20 @@ export function FlashcardModal({ items, onClose, storageKey = 'korean-study:flas
                   background: learnedIds.has(current.id) ? 'rgba(76, 175, 80, 0.1)' : 'transparent'
                 }}
               >
-                <span style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 700, textAlign: 'center', margin:0 as any, whiteSpace:'pre-wrap', display:'block', lineHeight: '1.3' }}>{normalizeNewlines(current.korean)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 700, textAlign: 'center', margin:0 as any, whiteSpace:'pre-wrap', display:'block', lineHeight: '1.3' }}>
+                    {normalizeNewlines(current.korean)}
+                  </span>
+                  <button
+                    className="btn small"
+                    type="button"
+                    onClick={() => speakKorean(current.korean)}
+                    title="Phát âm tiếng Hàn"
+                    style={{ flexShrink: 0, padding: '4px 8px' }}
+                  >
+                    🔊
+                  </button>
+                </div>
                 {learnedIds.has(current.id) && (
                   <div style={{ 
                     position: 'absolute', 
@@ -237,7 +251,20 @@ export function FlashcardModal({ items, onClose, storageKey = 'korean-study:flas
                   background: learnedIds.has(current.id) ? 'rgba(76, 175, 80, 0.1)' : 'transparent'
                 }}
               >
-                <span style={{ fontSize: 'clamp(16px, 3.5vw, 18px)', fontWeight: 600, marginBottom: 6, whiteSpace:'pre-wrap', lineHeight: '1.3' }}>{normalizeNewlines(current.korean)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 'clamp(16px, 3.5vw, 18px)', fontWeight: 600, whiteSpace:'pre-wrap', lineHeight: '1.3' }}>
+                    {normalizeNewlines(current.korean)}
+                  </span>
+                  <button
+                    className="btn small"
+                    type="button"
+                    onClick={() => speakKorean(current.korean)}
+                    title="Phát âm tiếng Hàn"
+                    style={{ flexShrink: 0, padding: '4px 8px' }}
+                  >
+                    🔊
+                  </button>
+                </div>
                 <span style={{ color: '#555', whiteSpace:'pre-wrap', fontSize: 'clamp(14px, 3vw, 16px)', lineHeight: '1.4' }}>{normalizeNewlines(current.vietnamese)}</span>
                 <span style={{ color: '#777', whiteSpace:'pre-wrap', fontSize: 'clamp(13px, 2.8vw, 15px)', lineHeight: '1.4' }}>{normalizeNewlines(current.english)}</span>
                 {learnedIds.has(current.id) && (

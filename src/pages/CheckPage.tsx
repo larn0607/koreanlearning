@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import type { StudyItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
 import { loadWrongIds, saveWrongIds } from '../utils/csv';
+import { speakKorean } from '../utils/speech';
 
 const STORAGE_KEY_PREFIX = 'korean-study:';
 
@@ -438,14 +439,30 @@ export function CheckPage() {
                       marginBottom: '4px'
                     }}>Đáp án đúng:</span>
                     <div style={{ 
-                      fontSize: '16px', 
-                      marginTop: '4px', 
-                      whiteSpace: 'pre-wrap', 
-                      fontWeight: '600',
-                      lineHeight: '1.4',
-                      wordBreak: 'break-word'
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8
                     }}>
-                      {normalizeNewlines(current.korean)}
+                      <div style={{ 
+                        fontSize: '16px', 
+                        marginTop: '4px', 
+                        whiteSpace: 'pre-wrap', 
+                        fontWeight: '600',
+                        lineHeight: '1.4',
+                        wordBreak: 'break-word',
+                        flex: 1
+                      }}>
+                        {normalizeNewlines(current.korean)}
+                      </div>
+                      <button
+                        className="btn small"
+                        type="button"
+                        onClick={() => speakKorean(current.korean)}
+                        title="Phát âm đáp án đúng"
+                        style={{ flexShrink: 0, padding: '4px 8px' }}
+                      >
+                        🔊
+                      </button>
                     </div>
                   </div>
 
@@ -482,8 +499,20 @@ export function CheckPage() {
                         marginTop: '4px',
                         lineHeight: '1.4'
                       }}>
-                        <div style={{ marginBottom: '4px' }}>
-                          <strong>KO:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example1_ko)}</span>
+                        <div style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <strong>KO:</strong>
+                          <span style={{ wordBreak: 'break-word', flex: 1 }}>{normalizeNewlines(current.example1_ko)}</span>
+                          {current.example1_ko && (
+                            <button
+                              className="btn small"
+                              type="button"
+                              onClick={() => speakKorean(current.example1_ko)}
+                              title="Phát âm ví dụ 1"
+                              style={{ flexShrink: 0, padding: '4px 8px' }}
+                            >
+                              🔊
+                            </button>
+                          )}
                         </div>
                         <div style={{ marginBottom: '4px' }}>
                           <strong>VI:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example1_vi)}</span>
@@ -508,8 +537,20 @@ export function CheckPage() {
                         marginTop: '4px',
                         lineHeight: '1.4'
                       }}>
-                        <div style={{ marginBottom: '4px' }}>
-                          <strong>KO:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example2_ko)}</span>
+                        <div style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <strong>KO:</strong>
+                          <span style={{ wordBreak: 'break-word', flex: 1 }}>{normalizeNewlines(current.example2_ko)}</span>
+                          {current.example2_ko && (
+                            <button
+                              className="btn small"
+                              type="button"
+                              onClick={() => speakKorean(current.example2_ko)}
+                              title="Phát âm ví dụ 2"
+                              style={{ flexShrink: 0, padding: '4px 8px' }}
+                            >
+                              🔊
+                            </button>
+                          )}
                         </div>
                         <div style={{ marginBottom: '4px' }}>
                           <strong>VI:</strong> <span style={{ wordBreak: 'break-word' }}>{normalizeNewlines(current.example2_vi)}</span>

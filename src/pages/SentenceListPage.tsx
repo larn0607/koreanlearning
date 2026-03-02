@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { SentenceItem } from '../types';
 import { exportSentencesToCSV, parseSentencesCSV, areItemsDifferent } from '../utils/csv';
 import { normalizeNewlines } from '../utils/text';
+import { speakKorean } from '../utils/speech';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const STORAGE_KEY_PREFIX = 'korean-study:sentences';
@@ -164,7 +165,20 @@ export function SentenceListPage() {
             <div style={{ display:'grid', gap:12, overflow: 'visible' }}>
               <div style={{ userSelect: 'text', WebkitUserSelect: 'text', msUserSelect: 'text', MozUserSelect: 'text', overflow: 'visible' }}>
                 <div className="label" style={{ marginBottom: 4, fontWeight: 600 }}>Câu (Tiếng Hàn):</div>
-                <div className="value" style={{ whiteSpace:'pre-wrap', userSelect: 'text', WebkitUserSelect: 'text', msUserSelect: 'text', MozUserSelect: 'text', overflow: 'visible', fontSize: '1.1em' }}>{normalizeNewlines(selected.sentence)}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div className="value" style={{ whiteSpace:'pre-wrap', userSelect: 'text', WebkitUserSelect: 'text', msUserSelect: 'text', MozUserSelect: 'text', overflow: 'visible', fontSize: '1.1em', flex: 1 }}>
+                    {normalizeNewlines(selected.sentence)}
+                  </div>
+                  <button
+                    className="btn small"
+                    type="button"
+                    onClick={() => speakKorean(selected.sentence)}
+                    title="Phát âm câu tiếng Hàn"
+                    style={{ flexShrink: 0, padding: '4px 8px' }}
+                  >
+                    🔊
+                  </button>
+                </div>
               </div>
               
               {selected.vietnamese && (
