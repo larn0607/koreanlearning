@@ -241,6 +241,9 @@ export function SentenceCheckPage() {
     const comparison = compareSentences(userInput, current.sentence);
     setComparisonResult(comparison);
     setShowResult(true);
+
+    // Luôn phát âm câu tiếng Hàn sau khi kiểm tra (đúng hoặc sai)
+    speakKorean(current.sentence);
     
     // Check if all words are correct
     const allCorrect = comparison.length > 0 && comparison.every(r => r.isCorrect);

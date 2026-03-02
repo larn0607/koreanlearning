@@ -138,6 +138,10 @@ export function CheckPage() {
     const correct = userAnswer === correctAnswer;
     setIsCorrect(correct);
     setShowResult(true);
+
+    // Luôn phát âm từ tiếng Hàn sau khi kiểm tra (đúng hoặc sai)
+    speakKorean(current.korean);
+
     // Don't move item to end immediately - wait for nextQuestion()
   }
 
