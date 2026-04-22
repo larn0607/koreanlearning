@@ -1,6 +1,7 @@
 import type { StudyItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
 import { speakKorean } from '../utils/speech';
+import { getStudyLanguage, getTargetLanguageLabel } from '../utils/language';
 
 type ItemModalProps = {
   item: StudyItem | null;
@@ -9,6 +10,7 @@ type ItemModalProps = {
 
 export function ItemModal({ item, onClose }: ItemModalProps) {
   if (!item) return null;
+  const targetLanguageLabel = getTargetLanguageLabel(getStudyLanguage());
   return (
     <div className="modal-backdrop" style={{
       position: 'fixed',
@@ -35,7 +37,7 @@ export function ItemModal({ item, onClose }: ItemModalProps) {
         <h3 className="modal-title">Chi tiết</h3>
         <div className="detail" style={{ overflow: 'visible' }}>
           <div style={{ userSelect: 'text', WebkitUserSelect: 'text', msUserSelect: 'text', MozUserSelect: 'text', overflow: 'visible' }}>
-            <span className="label">Tiếng Hàn:</span>
+            <span className="label">{targetLanguageLabel}:</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
               <span className="value" style={{ whiteSpace: 'pre-wrap', userSelect: 'text', WebkitUserSelect: 'text', msUserSelect: 'text', MozUserSelect: 'text', display: 'inline', overflow: 'visible', flex: 1 }}>
                 {normalizeNewlines(item.korean)}

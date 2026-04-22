@@ -4,6 +4,7 @@ import type { StudyItem } from '../types';
 import { normalizeNewlines } from '../utils/text';
 import { loadWrongIds, saveWrongIds } from '../utils/csv';
 import { speakKorean } from '../utils/speech';
+import { getStudyLanguage, getTargetLanguageLabel } from '../utils/language';
 
 const STORAGE_KEY_PREFIX = 'korean-study:';
 
@@ -65,6 +66,7 @@ export function CheckPage() {
   const [userInput, setUserInput] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const targetLanguageLabel = getTargetLanguageLabel(getStudyLanguage());
   
   // Load wrong IDs if in wrong-only mode
   const wrongIds = useMemo(() => {
@@ -379,14 +381,14 @@ export function CheckPage() {
                   fontSize: '14px', 
                   fontWeight: '600' 
                 }}>
-                  Nhập tiếng Hàn:
+                  Nhập {targetLanguageLabel}:
                 </label>
                 <input
                   type="text"
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Nhập từ tiếng Hàn..."
+                  placeholder={`Nhập từ ${targetLanguageLabel.toLowerCase()}...`}
                   style={{
                     width: '100%',
                     padding: '12px',

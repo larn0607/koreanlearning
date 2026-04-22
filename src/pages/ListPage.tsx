@@ -6,6 +6,7 @@ import type { StudyItem } from '../types';
 import { useParams, useNavigate } from 'react-router-dom';
 import { exportToCSV, parseCSV, clearFlashcardStorage, areItemsDifferent, clearCheckStorage, clearWrongItemsStorage } from '../utils/csv';
 import { speakKorean } from '../utils/speech';
+import { getStudyLanguage, getTargetLanguageLabel } from '../utils/language';
 
 type ListPageProps = {
   category: 'vocab' | 'grammar';
@@ -37,6 +38,8 @@ export function ListPage({ category }: ListPageProps) {
   const [query, setQuery] = useState('');
   const [showFlash, setShowFlash] = useState(false);
   const [editing, setEditing] = useState<StudyItem | null>(null);
+  const language = getStudyLanguage();
+  const targetLanguageLabel = getTargetLanguageLabel(language);
 
   useEffect(() => {
     saveItems(category, items, cardId);
@@ -60,7 +63,7 @@ export function ListPage({ category }: ListPageProps) {
   function handleImportChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    parseCSV(file).then(newItems => {
+    parseCSV(file, language).then(newItems => {
       setItems(prev => {
         // merge by id if exists, else append
         const map = new Map<string, StudyItem>();
@@ -116,7 +119,7 @@ export function ListPage({ category }: ListPageProps) {
           Import CSV
           <input type="file" accept=".csv" onChange={handleImportChange} hidden />
         </label>
-        <label className="btn" onClick={() => exportToCSV(items, `${category}_${cardId}.csv`)}>Export CSV</label>
+        <label className="btn" onClick={() => exportToCSV(items, `${category}_${cardId}.csv`, language)}>Export CSV</label>
         <label className="btn danger" onClick={handleClearAll}>Xóa tất cả</label>
         <label className="btn" onClick={() => setShowFlash(true)}>Flashcard</label>
         <label className="btn" onClick={() => navigate(cardId ? `/${category}/${cardId}/wrong` : `/${category}/wrong`)}>Từ đã sai</label>
@@ -130,7 +133,7 @@ export function ListPage({ category }: ListPageProps) {
 
       <div className="table">
           <div className="thead">
-          <div>Tiếng Hàn</div>
+          <div>{targetLanguageLabel}</div>
           <div>Tiếng Việt</div>
           <div>Tiếng Anh</div>
           <div>Hành động</div>

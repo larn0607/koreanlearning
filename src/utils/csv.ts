@@ -1,16 +1,21 @@
 import Papa, { type ParseResult } from 'papaparse';
 import type { StudyItem, NoteItem, SentenceItem } from '../types';
+import type { StudyLanguage } from './language';
 
-export function parseCSV(file: File): Promise<StudyItem[]> {
+export function parseCSV(file: File, language: StudyLanguage = 'ko'): Promise<StudyItem[]> {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: (results: ParseResult<Record<string, string>>) => {
         const rows = results.data as Array<Record<string, string>>;
+        const targetText = (row: Record<string, string>) =>
+          language === 'ja'
+            ? (row.japanese || row.Japanese || row.jp || row.JP || '')
+            : (row.korean || row.Korean || '');
         const items: StudyItem[] = rows.map((row, index) => ({
           id: row.id || `${Date.now()}-${index}`,
-          korean: row.korean || row.Korean || '',
+          korean: targetText(row),
           vietnamese: row.vietnamese || row.Vietnamese || row.Viet || '',
           english: row.english || row.English || '',
           description: row.description || row.Description || '',
@@ -28,11 +33,12 @@ export function parseCSV(file: File): Promise<StudyItem[]> {
   });
 }
 
-export function exportToCSV(items: StudyItem[], filename = 'export.csv') {
+export function exportToCSV(items: StudyItem[], filename = 'export.csv', language: StudyLanguage = 'ko') {
   // Ensure header has no quotes; quote all data fields (including id)
+  const targetColumn = language === 'ja' ? 'japanese' : 'korean';
   const fields = [
     'id',
-    'korean',
+    targetColumn,
     'vietnamese',
     'english',
     'description',
@@ -44,7 +50,12 @@ export function exportToCSV(items: StudyItem[], filename = 'export.csv') {
     'example2_en'
   ];
   // First, generate CSV with quotes for all fields
-  const csvAllQuoted = Papa.unparse(items, {
+  const normalizedItems = items.map(item => ({
+    ...item,
+    [targetColumn]: item.korean
+  }));
+
+  const csvAllQuoted = Papa.unparse(normalizedItems, {
     columns: fields,
     quotes: true,
     header: true
